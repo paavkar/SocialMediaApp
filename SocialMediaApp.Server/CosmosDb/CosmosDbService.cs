@@ -3,11 +3,27 @@ using SocialMediaApp.Server.Models;
 
 namespace SocialMediaApp.Server.CosmosDb
 {
-    public class CosmosDbUserService(CosmosDbFactory cosmosDbFactory) : ICosmosDbUserService
+    public class CosmosDbService(CosmosDbFactory cosmosDbFactory) : ICosmosDbService
     {
         private Container _container => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "UserAccounts");
         private Container _roleContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "AccountRoles");
         private Container _roleAccountContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "LinkedRoles");
+        private Container _postContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "Posts");
+
+        public async Task<UserDTO> GetUserAsync(string userId)
+        {
+            var userResponse = await _container.ReadItemAsync<UserDTO>(userId, new PartitionKey("User"));
+
+            var userDto = new UserDTO()
+            {
+                Id = userResponse.Resource.Id,
+                DisplayName = userResponse.Resource.DisplayName,
+                UserName = userResponse.Resource.UserName,
+                Email = userResponse.Resource.Email
+            };
+
+            return userDto;
+        }
 
         public async Task<UserAccount> AddAsync(UserAccount account)
         {
@@ -124,6 +140,60 @@ namespace SocialMediaApp.Server.CosmosDb
                 return response.Resource.RoleName;
             }
             else return null;
+        }
+
+        public async Task<List<Post>> GetAllPostsAsync()
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts");
+
+            using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
+                queryDefinition: parameterizedQuery);
+
+            List<Post> allPosts = new();
+
+            while (feedIterator.HasMoreResults)
+            {
+                FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
+
+                foreach (var post in posts)
+                {
+                    allPosts.Add(post);
+                }
+            }
+
+            return allPosts;
+        }
+
+        public async Task<List<Post>> GetUserPostsAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.author.id = @UserId")
+                .WithParameter("@UserId", userId);
+
+            using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
+                queryDefinition: parameterizedQuery);
+
+            List<Post> userPosts = new();
+
+            while (feedIterator.HasMoreResults)
+            {
+                FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
+
+                foreach (var userPost in posts)
+                {
+                    userPosts.Add(userPost);
+                }
+            }
+
+            return userPosts;
+        }
+
+        public async Task<Post> CreatePostAsync(Post post)
+        {
+            var response = await _postContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
+
+            return response.Resource;
         }
     }
 }

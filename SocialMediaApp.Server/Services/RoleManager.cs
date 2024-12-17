@@ -3,7 +3,7 @@ using SocialMediaApp.Server.Models;
 
 namespace SocialMediaApp.Server.Services
 {
-    public class RoleManager(ICosmosDbUserService cosmosDbUserService)
+    public class RoleManager(ICosmosDbService cosmosDbUserService)
     {
         public async Task<bool> CreateRoleIfNotExistAsync(string roleName)
         {

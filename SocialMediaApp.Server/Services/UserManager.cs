@@ -4,7 +4,7 @@ using SocialMediaApp.Server.Models;
 
 namespace SocialMediaApp.Server.Services
 {
-    public class UserManager(ICosmosDbUserService cosmosDbUserService, RoleManager roleManager)
+    public class UserManager(ICosmosDbService cosmosDbUserService, RoleManager roleManager)
     {
         public async Task<UserAccount> CreateUserAsync(RegisterDTO registerDTO)
         {
@@ -16,6 +16,13 @@ namespace SocialMediaApp.Server.Services
 
             var account = new UserAccount() { DisplayName = registerDTO.DisplayName, UserName = registerDTO.UserName, Email = registerDTO.Email, PasswordHash = passwordHash };
             var user = await cosmosDbUserService.AddAsync(account);
+
+            return user;
+        }
+
+        public async Task<UserDTO> GetUserByIdAsync(string userId)
+        {
+            var user = await cosmosDbUserService.GetUserAsync(userId);
 
             return user;
         }

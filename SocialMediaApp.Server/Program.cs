@@ -23,10 +23,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddSingleton<CosmosDbFactory>();
-builder.Services.AddScoped<ICosmosDbUserService, CosmosDbUserService>();
+builder.Services.AddScoped<ICosmosDbService, CosmosDbService>();
 builder.Services.AddScoped<RoleManager>();
 builder.Services.AddScoped<UserManager>();
 builder.Services.AddScoped<SignInManager>();
+builder.Services.AddScoped<PostsService>();
 
 var app = builder.Build();
 
