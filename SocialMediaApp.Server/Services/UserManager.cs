@@ -22,7 +22,7 @@ namespace SocialMediaApp.Server.Services
 
         public string HashPassword(string password)
         {
-            byte[] salt = BitConverter.GetBytes(128 / 8);
+            byte[] salt = BitConverter.GetBytes(16);
             string passwordHash = Convert.ToBase64String(KeyDerivation.Pbkdf2(
                     password: password!,
                     salt: salt,

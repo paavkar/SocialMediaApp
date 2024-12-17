@@ -95,10 +95,10 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<string> GetUserRoleAsync(UserAccount account)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM LinkedRoles lr WHERE lr.AccountId = @AccountId")
+                ("SELECT * FROM LinkedRoles lr WHERE lr.accountId = @AccountId")
                 .WithParameter("@AccountId", account.Id);
 
-            using FeedIterator<AccountRoleLinked> feedIterator = _roleContainer.GetItemQueryIterator<AccountRoleLinked>(
+            using FeedIterator<AccountRoleLinked> feedIterator = _roleAccountContainer.GetItemQueryIterator<AccountRoleLinked>(
                 queryDefinition: parameterizedQuery);
 
             List<AccountRoleLinked> existingRoles = new();
@@ -117,7 +117,9 @@ namespace SocialMediaApp.Server.CosmosDb
             {
                 var userRole = existingRoles.First();
 
-                var response = await _roleContainer.ReadItemAsync<AccountRole>(id: userRole.RoleId, new PartitionKey("AccountRole"));
+                string id = userRole.RoleId;
+
+                var response = await _roleContainer.ReadItemAsync<AccountRole>(id, new PartitionKey("AccountRole"));
 
                 return response.Resource.RoleName;
             }

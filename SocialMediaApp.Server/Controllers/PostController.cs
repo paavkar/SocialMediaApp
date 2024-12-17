@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace SocialMediaApp.Server.Controllers
 {
@@ -6,5 +7,12 @@ namespace SocialMediaApp.Server.Controllers
     [ApiController]
     public class PostController : ControllerBase
     {
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            return Ok();
+        }
     }
 }

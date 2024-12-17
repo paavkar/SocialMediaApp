@@ -29,9 +29,9 @@ namespace SocialMediaApp.Server.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var user = await _signInManager.PasswordSignInAsync(loginDto);
+            var userToken = await _signInManager.PasswordSignInAsync(loginDto);
 
-            if (user is not null) return Ok(user);
+            if (userToken is not null) return Ok(userToken);
 
             return Unauthorized(new { Message = "There was an issue logging in. Check your email and password.", StatusCode = StatusCodes.Status401Unauthorized });
         }
