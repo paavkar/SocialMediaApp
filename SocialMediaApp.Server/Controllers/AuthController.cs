@@ -9,19 +9,31 @@ namespace SocialMediaApp.Server.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager _userManager;
+        private readonly SignInManager _signInManager;
 
-        public AuthController(UserManager userManager)
+        public AuthController(UserManager userManager, SignInManager signInManager)
         {
             _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _signInManager = signInManager;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] UserAccount account)
+        public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
-            var user = await _userManager.CreateUserAsync(account);
+            var user = await _userManager.CreateUserAsync(registerDto);
 
-            if (user is UserAccount) return CreatedAtAction(nameof(Register), user);
+            if (user is not null) return CreatedAtAction(nameof(Register), user);
             else return BadRequest(new { Message = "There was an issue creating the account. Please try again later", StatusCode = StatusCodes.Status400BadRequest });
+        }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
+        {
+            var user = await _signInManager.PasswordSignInAsync(loginDto);
+
+            if (user is not null) return Ok(user);
+
+            return Unauthorized(new { Message = "There was an issue logging in. Check your email and password.", StatusCode = StatusCodes.Status401Unauthorized });
         }
     }
 }

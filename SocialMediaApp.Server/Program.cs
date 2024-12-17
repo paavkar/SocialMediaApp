@@ -11,6 +11,7 @@ builder.Services.AddSingleton<CosmosDbFactory>();
 builder.Services.AddScoped<ICosmosDbUserService, CosmosDbUserService>();
 builder.Services.AddScoped<RoleManager>();
 builder.Services.AddScoped<UserManager>();
+builder.Services.AddScoped<SignInManager>();
 
 var app = builder.Build();
 
