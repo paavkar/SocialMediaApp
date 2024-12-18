@@ -25,5 +25,14 @@ namespace SocialMediaApp.Server.Services
 
             return createdPost;
         }
+
+        public async Task<object> LikePostAsync(string id, string userId)
+        {
+            var post = await cosmosDbService.GetPostByIdAsync(id, userId);
+            int likeCount = post.LikeCount + 1;
+            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, likeCount);
+
+            return updatedPostUser;
+        }
     }
 }

@@ -206,5 +206,41 @@ namespace SocialMediaApp.Server.CosmosDb
 
             return response.Resource;
         }
+
+        public async Task<Post> GetPostByIdAsync(string id, string userId)
+        {
+            var response = await _postContainer.ReadItemAsync<Post>(id, new PartitionKey($"Post-{userId}"));
+
+            return response.Resource;
+        }
+
+        public async Task<object> LikePostAsync(string id, string userId, int likeCount)
+        {
+            var response = await _postContainer.PatchItemAsync<Post>(
+                id,
+                new PartitionKey($"Post-{userId}"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/likeCount", likeCount)
+                }
+            );
+
+            var user = await GetUserAsync(userId);
+            var userLikedPosts = user.LikedPosts;
+
+            var post = await GetPostByIdAsync(id, userId);
+            userLikedPosts.Add(post);
+
+            var userResponse = await _postContainer.PatchItemAsync<Post>(
+                userId,
+                new PartitionKey($"User"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/likedPosts", userLikedPosts)
+                }
+            );
+
+            return new { post = response.Resource, user = userResponse.Resource };
+        }
     }
 }

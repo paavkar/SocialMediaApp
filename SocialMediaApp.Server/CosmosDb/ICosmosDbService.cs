@@ -16,5 +16,7 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<Post> CreatePostAsync(Post post);
         Task<List<Post>> GetUserPostsAsync(string userId);
         Task<List<Post>> GetAllPostsAsync();
+        Task<Post> GetPostByIdAsync(string id, string userId);
+        Task<object> LikePostAsync(string id, string userId, int likeCount);
     }
 }

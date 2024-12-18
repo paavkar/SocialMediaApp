@@ -80,5 +80,17 @@ namespace SocialMediaApp.Server.Controllers
 
             return CreatedAtAction(nameof(Post), createdPost);
         }
+
+        [HttpPatch("like-post/{postId}")]
+        public async Task<IActionResult> LikePost(string postId)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+
+            var updatedPostUser = await _postsService.LikePostAsync(postId, userId);
+
+            return Ok(updatedPostUser);
+        }
     }
 }
