@@ -65,7 +65,7 @@ namespace SocialMediaApp.Server.CosmosDb
             using FeedIterator<UserAccount> feedIterator = _container.GetItemQueryIterator<UserAccount>(
                 queryDefinition: parameterizedQuery);
 
-            List<UserAccount> existingAccounts = new();
+            List<UserAccount> existingAccounts = [];
 
             while (feedIterator.HasMoreResults)
             {
@@ -101,7 +101,7 @@ namespace SocialMediaApp.Server.CosmosDb
             using FeedIterator<AccountRole> feedIterator = _roleContainer.GetItemQueryIterator<AccountRole>(
                 queryDefinition: parameterizedQuery);
 
-            List<AccountRole> existingRoles = new();
+            List<AccountRole> existingRoles = [];
 
             while (feedIterator.HasMoreResults)
             {
@@ -128,7 +128,7 @@ namespace SocialMediaApp.Server.CosmosDb
             using FeedIterator<AccountRoleLinked> feedIterator = _roleAccountContainer.GetItemQueryIterator<AccountRoleLinked>(
                 queryDefinition: parameterizedQuery);
 
-            List<AccountRoleLinked> existingRoles = new();
+            List<AccountRoleLinked> existingRoles = [];
 
             while (feedIterator.HasMoreResults)
             {
@@ -161,7 +161,7 @@ namespace SocialMediaApp.Server.CosmosDb
             using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
 
-            List<Post> allPosts = new();
+            List<Post> allPosts = [];
 
             while (feedIterator.HasMoreResults)
             {
@@ -179,13 +179,13 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<List<Post>> GetUserPostsAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt")
+                ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt DESC")
                 .WithParameter("@UserId", userId);
 
             using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
 
-            List<Post> userPosts = new();
+            List<Post> userPosts = [];
 
             while (feedIterator.HasMoreResults)
             {

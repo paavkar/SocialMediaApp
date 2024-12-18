@@ -40,26 +40,20 @@ namespace SocialMediaApp.Server.Controllers
 
             var posts = await _postsService.GetUserPostsAsync(userId);
 
-            List<object> chronologicalPosts = new();
-            Dictionary<string, object> postDictionary = new();
+            List<object> chronologicalPosts = [];
+            Dictionary<string, object> postDictionary = [];
 
             foreach (var post in posts)
             {
                 foreach (var repost in user.RepostedPosts)
                 {
-                    if (repost.Id == post.Id && repost.RepostedAt > post.CreatedAt)
+                    if (repost.RepostedAt > post.CreatedAt)
                     {
                         postDictionary.Remove(repost.Id);
                         postDictionary.Add(repost.Id, repost);
                     }
-                    else if (repost.Author.UserName != post.Author.UserName && repost.RepostedAt > post.CreatedAt)
-                    {
-                        postDictionary.Add(repost.Id, repost);
-                    }
-                    else
-                    {
+                    if (!postDictionary.ContainsKey(post.Id))
                         postDictionary.Add(post.Id, post);
-                    }
                 }
             }
 

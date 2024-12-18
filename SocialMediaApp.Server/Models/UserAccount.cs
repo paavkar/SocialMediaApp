@@ -20,22 +20,22 @@ namespace SocialMediaApp.Server.Models
         public string PasswordHash { get; set; }
 
         [JsonProperty(PropertyName = "likedPosts")]
-        public List<Post> LikedPosts { get; set; } = new();
+        public List<Post> LikedPosts { get; set; } = [];
 
         [JsonProperty(PropertyName = "repostedPosts")]
-        public List<Repost> RepostedPosts { get; set; } = new();
+        public List<Repost> RepostedPosts { get; set; } = [];
 
         [JsonProperty(PropertyName = "bookmarks")]
-        public List<Post> Bookmarks { get; set; } = new();
+        public List<Post> Bookmarks { get; set; } = [];
 
         [JsonProperty(PropertyName = "accountSettings")]
         public AccountSettings AccountSettings { get; set; } = new();
 
         [JsonProperty(PropertyName = "following")]
-        public List<UserDTO> Following { get; set; } = new();
+        public List<UserDTO> Following { get; set; } = [];
 
         [JsonProperty(PropertyName = "followers")]
-        public List<UserDTO> Followers { get; set; } = new();
+        public List<UserDTO> Followers { get; set; } = [];
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string PartitionKey { get; set; } = "User";

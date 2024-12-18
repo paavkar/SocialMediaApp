@@ -23,10 +23,10 @@ namespace SocialMediaApp.Server.Models
         public int ReplyCount { get; set; }
 
         [JsonProperty(PropertyName = "quotes")]
-        public List<Post> Quotes { get; set; } = new();
+        public List<Post> Quotes { get; set; } = [];
 
         [JsonProperty(PropertyName = "replies")]
-        public List<Post> Replies { get; set; } = new();
+        public List<Post> Replies { get; set; } = [];
 
         [JsonProperty(PropertyName = "createdAt")]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -35,10 +35,10 @@ namespace SocialMediaApp.Server.Models
         public Author Author { get; set; }
 
         [JsonProperty(PropertyName = "labels")]
-        public List<string> Labels { get; set; } = new();
+        public List<string> Labels { get; set; } = [];
 
         [JsonProperty(PropertyName = "langs")]
-        public List<string> Langs { get; set; } = new();
+        public List<string> Langs { get; set; } = [];
 
         [JsonProperty(PropertyName = "quotedPost")]
         public Post? QuotedPost { get; set; }
