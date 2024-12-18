@@ -31,6 +31,12 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "accountSettings")]
         public AccountSettings AccountSettings { get; set; } = new();
 
+        [JsonProperty(PropertyName = "following")]
+        public List<UserDTO> Following { get; set; } = new();
+
+        [JsonProperty(PropertyName = "followers")]
+        public List<UserDTO> Followers { get; set; } = new();
+
         [JsonProperty(PropertyName = "partitionKey")]
         public string PartitionKey { get; set; } = "User";
 

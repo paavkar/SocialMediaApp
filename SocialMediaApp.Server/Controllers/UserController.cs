@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SocialMediaApp.Server.Models;
 using SocialMediaApp.Server.Services;
 using System.Security.Claims;
 
@@ -27,7 +28,21 @@ namespace SocialMediaApp.Server.Controllers
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized("This user requires sign-in to view their profile.");
 
-            return Ok(user);
+            var userDto = new UserDTO()
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                UserName = user.UserName,
+                Email = user.Email,
+                LikedPosts = user.LikedPosts,
+                RepostedPosts = user.RepostedPosts,
+                Bookmarks = user.Bookmarks,
+                AccountSettings = user.AccountSettings,
+                Followers = user.Followers,
+                Following = user.Following
+            };
+
+            return Ok(userDto);
         }
     }
 }

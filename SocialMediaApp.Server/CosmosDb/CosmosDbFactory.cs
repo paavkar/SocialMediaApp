@@ -6,6 +6,12 @@ namespace SocialMediaApp.Server.CosmosDb
     {
         public CosmosClient CosmosClient { get; set; }
         public string DatabaseName { get; set; }
+
+        private Container _container;
+        private Container _roleContainer;
+        private Container _roleAccountContainer;
+        private Container _postContainer;
+
         public CosmosDbFactory(IConfiguration configuration)
         {
             CosmosDbSettings settings = configuration
@@ -24,6 +30,18 @@ namespace SocialMediaApp.Server.CosmosDb
             });
 
             DatabaseName = settings.DatabaseName ?? throw new ArgumentNullException(nameof(CosmosDbSettings));
+        }
+
+        public async Task InitializeDatabase()
+        {
+            await CosmosClient.CreateDatabaseIfNotExistsAsync(DatabaseName);
+
+            var database = CosmosClient.GetDatabase(DatabaseName);
+
+            await database.CreateContainerIfNotExistsAsync(id: "UserAccounts", partitionKeyPath: "/partitionKey");
+            await database.CreateContainerIfNotExistsAsync(id: "AccountRoles", partitionKeyPath: "/partitionKey");
+            await database.CreateContainerIfNotExistsAsync(id: "LinkedRoles", partitionKeyPath: "/roleId");
+            await database.CreateContainerIfNotExistsAsync(id: "Posts", partitionKeyPath: "/partitionKey");
         }
     }
 }

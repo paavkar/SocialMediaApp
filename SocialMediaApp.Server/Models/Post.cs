@@ -32,7 +32,7 @@ namespace SocialMediaApp.Server.Models
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
         [JsonProperty(PropertyName = "author")]
-        public UserDTO Author { get; set; }
+        public Author Author { get; set; }
 
         [JsonProperty(PropertyName = "labels")]
         public List<string> Labels { get; set; } = new();

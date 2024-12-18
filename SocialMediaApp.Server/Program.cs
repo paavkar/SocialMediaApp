@@ -18,7 +18,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                builder.Configuration.GetSection("AppSettings:Token").Value)),
+                builder.Configuration.GetSection("AppSettings:Token").Value!)),
         };
     });
 
@@ -28,6 +28,10 @@ builder.Services.AddScoped<RoleManager>();
 builder.Services.AddScoped<UserManager>();
 builder.Services.AddScoped<SignInManager>();
 builder.Services.AddScoped<PostsService>();
+
+// Purpose of this is to create the database and containers if they don't exist yet
+var f = new CosmosDbFactory(builder.Configuration);
+await f.InitializeDatabase();
 
 var app = builder.Build();
 

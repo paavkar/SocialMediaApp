@@ -24,10 +24,12 @@ namespace SocialMediaApp.Server.Services
                     LikedPosts = user.LikedPosts,
                     RepostedPosts = user.RepostedPosts,
                     Bookmarks = user.Bookmarks,
-                    AccountSettings = user.AccountSettings
+                    AccountSettings = user.AccountSettings,
+                    Followers = user.Followers,
+                    Following = user.Following
                 };
 
-                var token = await CreateToken(user);
+                var token = await CreateToken(user, userRole);
 
                 return new { User = userDto, Token = token };
             }
@@ -42,10 +44,8 @@ namespace SocialMediaApp.Server.Services
             return user is not null && hashedPassword == user.PasswordHash;
         }
 
-        public async Task<string> CreateToken(UserAccount account)
+        public async Task<string> CreateToken(UserAccount account, string userRole)
         {
-            var userRole = await roleManager.GetUserRoleAsync(account);
-
             List<Claim> claims = new()
             {
                 new Claim(ClaimTypes.Name, account.UserName),
@@ -56,7 +56,7 @@ namespace SocialMediaApp.Server.Services
             };
 
             var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
-                configuration.GetSection("AppSettings:Token").Value));
+                configuration.GetSection("AppSettings:Token").Value!));
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

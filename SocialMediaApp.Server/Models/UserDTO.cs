@@ -9,7 +9,8 @@
         public List<Post> LikedPosts { get; set; } = new();
         public List<Repost> RepostedPosts { get; set; } = new();
         public List<Post> Bookmarks { get; set; } = new();
-        public bool IsPrivate { get; set; } = false;
         public AccountSettings AccountSettings { get; set; }
+        public List<UserDTO> Following { get; set; } = new();
+        public List<UserDTO> Followers { get; set; } = new();
     }
 }

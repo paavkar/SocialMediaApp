@@ -10,19 +10,11 @@ namespace SocialMediaApp.Server.CosmosDb
         private Container _roleAccountContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "LinkedRoles");
         private Container _postContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "Posts");
 
-        public async Task<UserDTO> GetUserAsync(string userId)
+        public async Task<UserAccount> GetUserAsync(string userId)
         {
-            var userResponse = await _container.ReadItemAsync<UserDTO>(userId, new PartitionKey("User"));
+            var userResponse = await _container.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
 
-            var userDto = new UserDTO()
-            {
-                Id = userResponse.Resource.Id,
-                DisplayName = userResponse.Resource.DisplayName,
-                UserName = userResponse.Resource.UserName,
-                Email = userResponse.Resource.Email
-            };
-
-            return userDto;
+            return userResponse.Resource;
         }
 
         public async Task<UserAccount> AddAsync(UserAccount account)
@@ -187,7 +179,7 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<List<Post>> GetUserPostsAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.author.id = @UserId")
+                ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt")
                 .WithParameter("@UserId", userId);
 
             using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(

@@ -36,9 +36,39 @@ namespace SocialMediaApp.Server.Controllers
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
+            var user = await _userManager.GetUserByIdAsync(userId);
+
             var posts = await _postsService.GetUserPostsAsync(userId);
 
-            return Ok(posts);
+            List<object> chronologicalPosts = new();
+            Dictionary<string, object> postDictionary = new();
+
+            foreach (var post in posts)
+            {
+                foreach (var repost in user.RepostedPosts)
+                {
+                    if (repost.Id == post.Id && repost.RepostedAt > post.CreatedAt)
+                    {
+                        postDictionary.Remove(repost.Id);
+                        postDictionary.Add(repost.Id, repost);
+                    }
+                    else if (repost.Author.UserName != post.Author.UserName && repost.RepostedAt > post.CreatedAt)
+                    {
+                        postDictionary.Add(repost.Id, repost);
+                    }
+                    else
+                    {
+                        postDictionary.Add(post.Id, post);
+                    }
+                }
+            }
+
+            foreach (var post in postDictionary)
+            {
+                chronologicalPosts.Add(post.Value);
+            }
+
+            return Ok(chronologicalPosts);
         }
 
         [HttpPost("post")]

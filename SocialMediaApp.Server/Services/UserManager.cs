@@ -26,9 +26,23 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
-        public async Task<UserDTO> GetUserByIdAsync(string userId)
+        public async Task<UserAccount> GetUserByIdAsync(string userId)
         {
             var user = await cosmosDbUserService.GetUserAsync(userId);
+
+            return user;
+        }
+
+        public async Task<UserAccount> GetUserByEmailAsync(string email)
+        {
+            var user = await cosmosDbUserService.GetByEmailAsync(email);
+
+            return user;
+        }
+
+        public async Task<UserAccount> GetUserByUserNameAsync(string userName)
+        {
+            var user = await cosmosDbUserService.GetUserByUserNameAsync(userName);
 
             return user;
         }
@@ -44,20 +58,6 @@ namespace SocialMediaApp.Server.Services
                     numBytesRequested: 256 / 8));
 
             return passwordHash;
-        }
-
-        public async Task<UserAccount> GetUserByEmailAsync(string email)
-        {
-            var user = await cosmosDbUserService.GetByEmailAsync(email);
-
-            return user;
-        }
-
-        public async Task<UserAccount> GetUserByUserNameAsync(string userName)
-        {
-            var user = await cosmosDbUserService.GetUserByUserNameAsync(userName);
-
-            return user;
         }
     }
 }
