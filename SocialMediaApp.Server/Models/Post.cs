@@ -43,11 +43,17 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "quotedPost")]
         public Post? QuotedPost { get; set; }
 
+        [JsonProperty(PropertyName = "parentPost")]
+        public Post? ParentPost { get; set; }
+
         [JsonProperty(PropertyName = "previousVersions")]
         public List<Post>? PreviousVersions { get; set; }
 
-        [JsonProperty(PropertyName = "repostedBy")]
-        public UserDTO? RepostedBy { get; set; }
+        [JsonProperty(PropertyName = "bookmarkCount")]
+        public int BookmarkCount { get; set; }
+
+        [JsonProperty(PropertyName = "isPinned")]
+        public bool IsPinned { get; set; } = false;
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }

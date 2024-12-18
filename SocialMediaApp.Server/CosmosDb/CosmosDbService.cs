@@ -27,9 +27,10 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<UserAccount> AddAsync(UserAccount account)
         {
-            var existingUser = await GetByEmailAsync(account.Email);
+            var existingEmail = await GetByEmailAsync(account.Email);
+            var existingUserName = await GetUserByUserNameAsync(account.UserName);
 
-            if (existingUser is not UserAccount)
+            if (existingEmail is null && existingUserName is null)
             {
                 var role = await GetRoleByNameAsync("User");
 
@@ -51,6 +52,24 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM UserAccounts ua WHERE ua.email = @Email")
                 .WithParameter("@Email", email);
 
+            var user = await GetUserFromFeedIterator(parameterizedQuery);
+
+            return user;
+        }
+
+        public async Task<UserAccount> GetUserByUserNameAsync(string userName)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM UserAccounts ua WHERE ua.userName = @UserName")
+                .WithParameter("@UserName", userName);
+
+            var user = await GetUserFromFeedIterator(parameterizedQuery);
+
+            return user;
+        }
+
+        public async Task<UserAccount> GetUserFromFeedIterator(QueryDefinition parameterizedQuery)
+        {
             using FeedIterator<UserAccount> feedIterator = _container.GetItemQueryIterator<UserAccount>(
                 queryDefinition: parameterizedQuery);
 

@@ -14,7 +14,13 @@ namespace SocialMediaApp.Server.Services
 
             string passwordHash = HashPassword(registerDTO.Password);
 
-            var account = new UserAccount() { DisplayName = registerDTO.DisplayName, UserName = registerDTO.UserName, Email = registerDTO.Email, PasswordHash = passwordHash };
+            var account = new UserAccount()
+            {
+                DisplayName = registerDTO.DisplayName,
+                UserName = registerDTO.UserName,
+                Email = registerDTO.Email,
+                PasswordHash = passwordHash
+            };
             var user = await cosmosDbUserService.AddAsync(account);
 
             return user;
@@ -43,6 +49,13 @@ namespace SocialMediaApp.Server.Services
         public async Task<UserAccount> GetUserByEmailAsync(string email)
         {
             var user = await cosmosDbUserService.GetByEmailAsync(email);
+
+            return user;
+        }
+
+        public async Task<UserAccount> GetUserByUserNameAsync(string userName)
+        {
+            var user = await cosmosDbUserService.GetUserByUserNameAsync(userName);
 
             return user;
         }

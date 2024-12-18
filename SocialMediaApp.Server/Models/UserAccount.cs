@@ -19,6 +19,18 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "passwordHash")]
         public string PasswordHash { get; set; }
 
+        [JsonProperty(PropertyName = "likedPosts")]
+        public List<Post> LikedPosts { get; set; } = new();
+
+        [JsonProperty(PropertyName = "repostedPosts")]
+        public List<Repost> RepostedPosts { get; set; } = new();
+
+        [JsonProperty(PropertyName = "bookmarks")]
+        public List<Post> Bookmarks { get; set; } = new();
+
+        [JsonProperty(PropertyName = "accountSettings")]
+        public AccountSettings AccountSettings { get; set; } = new();
+
         [JsonProperty(PropertyName = "partitionKey")]
         public string PartitionKey { get; set; } = "User";
 

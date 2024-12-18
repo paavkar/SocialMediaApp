@@ -20,7 +20,11 @@ namespace SocialMediaApp.Server.Services
                     Id = user.Id,
                     DisplayName = user.DisplayName,
                     UserName = user.UserName,
-                    Email = user.Email
+                    Email = user.Email,
+                    LikedPosts = user.LikedPosts,
+                    RepostedPosts = user.RepostedPosts,
+                    Bookmarks = user.Bookmarks,
+                    AccountSettings = user.AccountSettings
                 };
 
                 var token = await CreateToken(user);
