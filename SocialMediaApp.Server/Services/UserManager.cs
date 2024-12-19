@@ -47,6 +47,13 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
+        public async Task<UserAccount> FollowAsync(string userName, Author follower, bool follow = true)
+        {
+            var user = await cosmosDbUserService.FollowUserAsync(userName, follower, follow);
+
+            return user;
+        }
+
         public string HashPassword(string password)
         {
             byte[] salt = BitConverter.GetBytes(16);

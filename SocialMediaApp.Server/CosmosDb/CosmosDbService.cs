@@ -84,6 +84,43 @@ namespace SocialMediaApp.Server.CosmosDb
                 return null;
         }
 
+        public async Task<UserAccount> FollowUserAsync(string userName, Author follower, bool follow = true)
+        {
+            var user = await GetUserAsync(follower.Id);
+            var followee = await GetUserByUserNameAsync(userName);
+
+            if (follow)
+            {
+                followee.Followers.Add(follower);
+                user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName });
+            }
+            else
+            {
+                followee.Followers.Remove(followee.Followers.Find(f => f.Id == follower.Id)!);
+                user.Following.Remove(user.Following.Find(f => f.Id == followee.Id)!);
+            }
+
+            var response = await _container.PatchItemAsync<UserAccount>(
+                followee.Id,
+                new PartitionKey("User"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/followers", followee.Followers)
+                }
+            );
+
+            var userResponse = await _container.PatchItemAsync<UserAccount>(
+                user.Id,
+                new PartitionKey("User"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/following", user.Following)
+                }
+            );
+
+            return userResponse.Resource;
+        }
+
         public async Task<AccountRole> AddRoleAsync(string roleName)
         {
             var roleToCreate = new AccountRole() { RoleName = roleName };

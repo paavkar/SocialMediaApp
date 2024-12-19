@@ -8,6 +8,7 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<UserAccount> GetByEmailAsync(string email);
         Task<UserAccount> GetUserByUserNameAsync(string userName);
         Task<UserAccount> GetUserAsync(string userId);
+        Task<UserAccount> FollowUserAsync(string userName, Author follower, bool follow = true);
 
         Task<AccountRole> GetRoleByNameAsync(string roleName);
         Task<AccountRole> AddRoleAsync(string roleName);

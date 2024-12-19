@@ -44,5 +44,35 @@ namespace SocialMediaApp.Server.Controllers
 
             return Ok(userDto);
         }
+
+        [HttpPatch("follow-user/{userName}")]
+        [HttpPatch("unfollow-user/{userName}")]
+        public async Task<IActionResult> Follow(string username, [FromBody] Author follower)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+
+            if (follower is null) return BadRequest("No follower provided.");
+
+            if (follower.Id != userId) return BadRequest("Follower ID does not match token ID.");
+
+            if (follower.UserName == username) return BadRequest("You are not allowed to follow yourself.");
+
+            if (HttpContext.Request.Path.Value!.Contains("follow-user"))
+            {
+                var user = await _userManager.FollowAsync(username, follower);
+
+                return Ok("User followed successfully.");
+            }
+            else
+            {
+                var user = await _userManager.FollowAsync(username, follower, false);
+
+                return Ok("User unfollowed successfully.");
+            }
+
+            return Ok();
+        }
     }
 }
