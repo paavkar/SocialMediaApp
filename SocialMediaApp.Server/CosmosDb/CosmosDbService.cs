@@ -1,5 +1,6 @@
 ﻿using Microsoft.Azure.Cosmos;
 using SocialMediaApp.Server.Models;
+using System.Net;
 
 namespace SocialMediaApp.Server.CosmosDb
 {
@@ -207,6 +208,15 @@ namespace SocialMediaApp.Server.CosmosDb
             return response.Resource;
         }
 
+        public async Task<bool> DeletePostAsync(string postId, string userId)
+        {
+            var response = await _postContainer.DeleteItemAsync<Post>(postId, new PartitionKey($"Post-{userId}"));
+
+            Console.WriteLine(response.StatusCode);
+
+            return response.StatusCode == HttpStatusCode.NoContent;
+        }
+
         public async Task<Post> GetPostByIdAsync(string id, string userId)
         {
             var response = await _postContainer.ReadItemAsync<Post>(id, new PartitionKey($"Post-{userId}"));
@@ -214,11 +224,11 @@ namespace SocialMediaApp.Server.CosmosDb
             return response.Resource;
         }
 
-        public async Task<object> LikePostAsync(string id, string userId, int likeCount)
+        public async Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false)
         {
             var response = await _postContainer.PatchItemAsync<Post>(
                 id,
-                new PartitionKey($"Post-{userId}"),
+                new PartitionKey($"Post-{postUserId}"),
                 patchOperations: new[]
                 {
                     PatchOperation.Replace("/likeCount", likeCount)
@@ -227,11 +237,18 @@ namespace SocialMediaApp.Server.CosmosDb
 
             var user = await GetUserAsync(userId);
             var userLikedPosts = user.LikedPosts;
-
             var post = await GetPostByIdAsync(id, userId);
-            userLikedPosts.Add(post);
 
-            var userResponse = await _postContainer.PatchItemAsync<Post>(
+            if (!unlike)
+            {
+                userLikedPosts.Add(post);
+            }
+            else
+            {
+                userLikedPosts.Remove(userLikedPosts.Find(p => p.Id == post.Id)!);
+            }
+
+            var userResponse = await _postContainer.PatchItemAsync<UserAccount>(
                 userId,
                 new PartitionKey($"User"),
                 patchOperations: new[]

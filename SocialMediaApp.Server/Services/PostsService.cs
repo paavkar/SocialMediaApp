@@ -26,11 +26,22 @@ namespace SocialMediaApp.Server.Services
             return createdPost;
         }
 
-        public async Task<object> LikePostAsync(string id, string userId)
+        public async Task<bool> DeletePostAsync(string postId, string userId)
+        {
+            var postDeleted = await cosmosDbService.DeletePostAsync(postId, userId);
+
+            return postDeleted;
+        }
+
+        public async Task<object> LikePostAsync(string id, string userId, bool unlike = false)
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, userId);
-            int likeCount = post.LikeCount + 1;
-            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, likeCount);
+            int likeCount;
+
+            if (!unlike) likeCount = post.LikeCount + 1;
+            else likeCount = post.LikeCount - 1;
+
+            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, post.Author.Id, likeCount);
 
             return updatedPostUser;
         }

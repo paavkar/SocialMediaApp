@@ -14,9 +14,10 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<string> GetUserRoleAsync(UserAccount account);
 
         Task<Post> CreatePostAsync(Post post);
+        Task<bool> DeletePostAsync(string postId, string userId);
         Task<List<Post>> GetUserPostsAsync(string userId);
         Task<List<Post>> GetAllPostsAsync();
         Task<Post> GetPostByIdAsync(string id, string userId);
-        Task<object> LikePostAsync(string id, string userId, int likeCount);
+        Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false);
     }
 }

@@ -10,7 +10,7 @@
         public List<Repost> RepostedPosts { get; set; } = [];
         public List<Post> Bookmarks { get; set; } = [];
         public AccountSettings AccountSettings { get; set; }
-        public List<UserDTO> Following { get; set; } = [];
-        public List<UserDTO> Followers { get; set; } = [];
+        public List<Author> Following { get; set; } = [];
+        public List<Author> Followers { get; set; } = [];
     }
 }

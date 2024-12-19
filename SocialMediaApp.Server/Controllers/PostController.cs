@@ -40,8 +40,8 @@ namespace SocialMediaApp.Server.Controllers
 
             var posts = await _postsService.GetUserPostsAsync(userId);
 
-            List<object> chronologicalPosts = [];
-            Dictionary<string, object> postDictionary = [];
+            List<dynamic> chronologicalPosts = [];
+            Dictionary<string, dynamic> postDictionary = [];
 
             foreach (var post in posts)
             {
@@ -81,16 +81,42 @@ namespace SocialMediaApp.Server.Controllers
             return CreatedAtAction(nameof(Post), createdPost);
         }
 
-        [HttpPatch("like-post/{postId}")]
-        public async Task<IActionResult> LikePost(string postId)
+        [HttpDelete("delete-post/{postId}")]
+        public async Task<IActionResult> DeletePost(string postId, [FromBody] Author postAuthor)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
 
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
-            var updatedPostUser = await _postsService.LikePostAsync(postId, userId);
+            if (userId != postAuthor.Id) return Unauthorized("You are not authorized to delete this post.");
 
-            return Ok(updatedPostUser);
+            var deleted = await _postsService.DeletePostAsync(postId, userId);
+
+            if (deleted) return Ok("Post deleted successfully.");
+            return BadRequest("Post could not be deleted.");
+        }
+
+        [HttpPatch("like-post/{postId}")]
+        [HttpPatch("unlike-post/{postId}")]
+        public async Task<IActionResult> LikePost(string postId)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            Console.WriteLine(HttpContext.Request.Path.Value);
+
+            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+
+            if (HttpContext.Request.Path.Value!.Contains("unlike"))
+            {
+                var updatedPostUser = await _postsService.LikePostAsync(postId, userId, true);
+
+                return Ok(updatedPostUser);
+            }
+            else
+            {
+                var updatedPostUser = await _postsService.LikePostAsync(postId, userId);
+
+                return Ok(updatedPostUser);
+            }
         }
     }
 }
