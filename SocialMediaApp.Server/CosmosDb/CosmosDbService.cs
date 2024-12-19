@@ -255,13 +255,15 @@ namespace SocialMediaApp.Server.CosmosDb
                 var usersToUpdate = new List<UserAccount>();
 
                 using (FeedIterator<UserAccount> feedIterator = _container.GetItemLinqQueryable<UserAccount>()
-                    .Where(u => u.RepostedPosts.Any(rp => rp.Id == postId)).ToFeedIterator())
+                    .Where(u => u.RepostedPosts.Any(rp => rp.Id == postId) || u.LikedPosts.Any(lp => lp.Id == postId))
+                    .ToFeedIterator())
                 {
                     while (feedIterator.HasMoreResults)
                     {
                         foreach (UserAccount user in await feedIterator.ReadNextAsync())
                         {
                             user.RepostedPosts.RemoveAll(rp => rp.Id == postId);
+                            user.LikedPosts.RemoveAll(lp => lp.Id == postId);
                             usersToUpdate.Add(user);
                         }
                     }
@@ -273,7 +275,8 @@ namespace SocialMediaApp.Server.CosmosDb
                         new PartitionKey("User"),
                         patchOperations: new[]
                         {
-                            PatchOperation.Replace("/repostedPosts", user.RepostedPosts)
+                            PatchOperation.Replace("/repostedPosts", user.RepostedPosts),
+                            PatchOperation.Replace("/likedPosts", user.LikedPosts)
                         }
                     );
                 }
