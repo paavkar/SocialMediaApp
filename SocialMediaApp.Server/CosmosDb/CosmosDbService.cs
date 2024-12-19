@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Linq;
 using SocialMediaApp.Server.Models;
 using System.Net;
 
@@ -249,7 +250,34 @@ namespace SocialMediaApp.Server.CosmosDb
         {
             var response = await _postContainer.DeleteItemAsync<Post>(postId, new PartitionKey($"Post-{userId}"));
 
-            Console.WriteLine(response.StatusCode);
+            if (response.StatusCode == HttpStatusCode.NoContent)
+            {
+                var usersToUpdate = new List<UserAccount>();
+
+                using (FeedIterator<UserAccount> feedIterator = _container.GetItemLinqQueryable<UserAccount>()
+                    .Where(u => u.RepostedPosts.Any(rp => rp.Id == postId)).ToFeedIterator())
+                {
+                    while (feedIterator.HasMoreResults)
+                    {
+                        foreach (UserAccount user in await feedIterator.ReadNextAsync())
+                        {
+                            user.RepostedPosts.RemoveAll(rp => rp.Id == postId);
+                            usersToUpdate.Add(user);
+                        }
+                    }
+                }
+                foreach (var user in usersToUpdate)
+                {
+                    await _container.PatchItemAsync<UserAccount>(
+                        user.Id,
+                        new PartitionKey("User"),
+                        patchOperations: new[]
+                        {
+                            PatchOperation.Replace("/repostedPosts", user.RepostedPosts)
+                        }
+                    );
+                }
+            }
 
             return response.StatusCode == HttpStatusCode.NoContent;
         }

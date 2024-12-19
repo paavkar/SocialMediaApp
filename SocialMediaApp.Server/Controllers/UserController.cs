@@ -71,8 +71,6 @@ namespace SocialMediaApp.Server.Controllers
 
                 return Ok("User unfollowed successfully.");
             }
-
-            return Ok();
         }
     }
 }

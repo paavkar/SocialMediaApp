@@ -55,6 +55,8 @@ namespace SocialMediaApp.Server.Controllers
                     if (!postDictionary.ContainsKey(post.Id))
                         postDictionary.Add(post.Id, post);
                 }
+                if (!postDictionary.ContainsKey(post.Id))
+                    postDictionary.Add(post.Id, post);
             }
 
             foreach (var post in postDictionary)
@@ -78,7 +80,9 @@ namespace SocialMediaApp.Server.Controllers
 
             var createdPost = await _postsService.CreatePostAsync(post);
 
-            return CreatedAtAction(nameof(Post), createdPost);
+            var userPosts = await _postsService.GetUserPostsAsync(userId);
+
+            return CreatedAtAction(nameof(Post), new { createdPost, userPosts });
         }
 
         [HttpDelete("delete-post/{postId}")]
@@ -92,7 +96,12 @@ namespace SocialMediaApp.Server.Controllers
 
             var deleted = await _postsService.DeletePostAsync(postId, userId);
 
-            if (deleted) return Ok("Post deleted successfully.");
+            if (deleted)
+            {
+                var userPosts = await _postsService.GetUserPostsAsync(userId);
+
+                return Ok(new { StatusCode = StatusCodes.Status204NoContent, userPosts });
+            }
             return BadRequest("Post could not be deleted.");
         }
 
