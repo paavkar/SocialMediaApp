@@ -319,7 +319,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
             var user = await GetUserAsync(userId);
             var userLikedPosts = user.LikedPosts;
-            var post = await GetPostByIdAsync(id, userId);
+            var post = await GetPostByIdAsync(id, postUserId);
 
             if (!unlike)
             {
