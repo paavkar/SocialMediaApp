@@ -40,6 +40,17 @@ namespace SocialMediaApp.Server.CosmosDb
             return null;
         }
 
+        public async Task<UserAccount> GetUserByEmailOrUserNameAsync(string emailOrUserName)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM UserAccounts ua WHERE ua.email = @EmailOrUserName OR ua.userName = @EmailOrUserName")
+                .WithParameter("@EmailOrUserName", emailOrUserName);
+
+            var user = await GetUserFromFeedIterator(parameterizedQuery);
+
+            return user;
+        }
+
         public async Task<UserAccount> GetByEmailAsync(string email)
         {
             var parameterizedQuery = new QueryDefinition

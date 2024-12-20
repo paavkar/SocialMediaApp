@@ -5,6 +5,7 @@ namespace SocialMediaApp.Server.CosmosDb
     public interface ICosmosDbService
     {
         Task<UserAccount> AddAsync(UserAccount account);
+        Task<UserAccount> GetUserByEmailOrUserNameAsync(string emailOrUserName);
         Task<UserAccount> GetByEmailAsync(string email);
         Task<UserAccount> GetUserByUserNameAsync(string userName);
         Task<UserAccount> GetUserAsync(string userId);

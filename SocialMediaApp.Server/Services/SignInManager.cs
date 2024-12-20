@@ -9,7 +9,7 @@ namespace SocialMediaApp.Server.Services
     {
         public async Task<object> PasswordSignInAsync(LoginDTO loginDTO)
         {
-            var user = await userManager.GetUserByEmailAsync(loginDTO.Email);
+            var user = await userManager.GetUserByEmailOrUserNameAsync(loginDTO.EmailOrUserName);
             var hashedPassword = userManager.HashPassword(loginDTO.Password);
 
             if (user is not null && hashedPassword == user.PasswordHash)
@@ -38,7 +38,7 @@ namespace SocialMediaApp.Server.Services
 
         public async Task<bool> AttemptPasswordSignInAsync(LoginDTO loginDTO)
         {
-            var user = await userManager.GetUserByEmailAsync(loginDTO.Email);
+            var user = await userManager.GetUserByEmailOrUserNameAsync(loginDTO.EmailOrUserName);
             var hashedPassword = userManager.HashPassword(loginDTO.Password);
 
             return user is not null && hashedPassword == user.PasswordHash;

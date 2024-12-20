@@ -33,6 +33,13 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
+        public async Task<UserAccount> GetUserByEmailOrUserNameAsync(string emailOrUserName)
+        {
+            var user = await cosmosDbUserService.GetUserByEmailOrUserNameAsync(emailOrUserName);
+
+            return user;
+        }
+
         public async Task<UserAccount> GetUserByEmailAsync(string email)
         {
             var user = await cosmosDbUserService.GetByEmailAsync(email);
