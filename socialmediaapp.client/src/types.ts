@@ -21,6 +21,8 @@ export interface Post {
     repostCount: number;
     quoteCount: number;
     replyCount: number;
+    accountsLiked: Author[];
+    accountsReposted: Author[];
     quotes: Post[];
     replies: Post[];
     CreatedAt: Date;

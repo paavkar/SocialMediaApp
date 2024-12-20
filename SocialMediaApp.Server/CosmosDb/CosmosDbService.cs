@@ -319,27 +319,31 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false)
         {
+            var user = await GetUserAsync(userId);
+            var userLikedPosts = user.LikedPosts;
+            var post = await GetPostByIdAsync(id, postUserId);
+            var accountsLiked = post.AccountsLiked;
+
+            if (!unlike)
+            {
+                userLikedPosts.Add(post);
+                accountsLiked.Add(new Author() { Id = user.Id, UserName = user.UserName, DisplayName = user.DisplayName });
+            }
+            else
+            {
+                userLikedPosts.RemoveAll(p => p.Id == post.Id);
+                accountsLiked.RemoveAll(a => a.Id == user.Id);
+            }
+
             var response = await PostContainer.PatchItemAsync<Post>(
                 id,
                 new PartitionKey($"Post-{postUserId}"),
                 patchOperations: new[]
                 {
-                    PatchOperation.Replace("/likeCount", likeCount)
+                    PatchOperation.Replace("/likeCount", likeCount),
+                    PatchOperation.Replace("/accountsLiked", accountsLiked)
                 }
             );
-
-            var user = await GetUserAsync(userId);
-            var userLikedPosts = user.LikedPosts;
-            var post = await GetPostByIdAsync(id, postUserId);
-
-            if (!unlike)
-            {
-                userLikedPosts.Add(post);
-            }
-            else
-            {
-                userLikedPosts.RemoveAll(p => p.Id == post.Id);
-            }
 
             var userResponse = await UserContainer.PatchItemAsync<UserAccount>(
                 userId,

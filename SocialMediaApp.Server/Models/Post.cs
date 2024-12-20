@@ -22,6 +22,12 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "replyCount")]
         public int ReplyCount { get; set; }
 
+        [JsonProperty(PropertyName = "accountsLiked")]
+        public List<Author> AccountsLiked { get; set; } = [];
+
+        [JsonProperty(PropertyName = "accountsReposted")]
+        public List<Author> AccountsReposted { get; set; } = [];
+
         [JsonProperty(PropertyName = "quotes")]
         public List<Post> Quotes { get; set; } = [];
 
