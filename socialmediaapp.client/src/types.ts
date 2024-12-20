@@ -1,20 +1,20 @@
-export type AccountSettings = {
+export interface AccountSettings {
     signInRequired: boolean;
     isPrivate: boolean;
 }
 
-export type Author = {
+export interface Author {
     id: string;
     displayName: string;
     userName: string;
 }
 
-export type LoginDTO = {
+export interface LoginDTO {
     emailOrUserName: string;
     password: string;
 }
 
-export type Post = {
+export interface Post {
     id: string;
     text: string;
     likeCount: number;
@@ -37,7 +37,7 @@ export type Post = {
     repostedAt: Date;
 }
 
-export type User = {
+export interface User {
     id: string;
     displayName: string;
     userName: string;
@@ -50,7 +50,7 @@ export type User = {
     followers: Author[];
 }
 
-export type RegisterDTO = {
+export interface RegisterDTO {
     displayName: string;
     userName: string;
     email: string;
