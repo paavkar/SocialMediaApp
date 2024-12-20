@@ -13,6 +13,9 @@ namespace SocialMediaApp.Server.Controllers
         {
             var user = await userManager.CreateUserAsync(registerDto);
 
+            if (user is null)
+                return BadRequest("Either the email or username is already taken.");
+
             var userDto = new UserDTO()
             {
                 Id = user.Id,

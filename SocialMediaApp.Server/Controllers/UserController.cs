@@ -52,17 +52,33 @@ namespace SocialMediaApp.Server.Controllers
 
             if (follower.UserName == username) return BadRequest("You are not allowed to follow yourself.");
 
-            if (HttpContext.Request.Path.Value!.Contains("follow-user"))
-            {
-                var user = await userManager.FollowAsync(username, follower);
+            var user = await userManager.GetUserByIdAsync(userId);
 
-                return Ok("User followed successfully.");
+            if (HttpContext.Request.Path.Value!.Contains("unfollow-user"))
+            {
+                if (user.Following.Find(u => u.UserName == username) is null)
+                    return BadRequest("You are not following this user.");
+
+                var updatedUser = await userManager.FollowAsync(username, follower, false);
+
+                if (updatedUser is null)
+                    return NotFound($"Couldn't find a user with the username {username}" +
+                        $" or with the id {userId}");
+
+                return Ok(new { Message = "User unfollowed successfully.", updatedUser });
             }
             else
             {
-                var user = await userManager.FollowAsync(username, follower, false);
+                if (user.Following.Find(u => u.UserName == username) is not null)
+                    return BadRequest("You are already following this user.");
 
-                return Ok("User unfollowed successfully.");
+                var updatedUser = await userManager.FollowAsync(username, follower);
+
+                if (updatedUser is null)
+                    return NotFound($"Couldn't find a user with the username {username}" +
+                        $" or with the id {userId}");
+
+                return Ok(new { Message = "User followed successfully", updatedUser });
             }
         }
     }

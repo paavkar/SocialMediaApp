@@ -88,7 +88,10 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<UserAccount> FollowUserAsync(string userName, Author follower, bool follow = true)
         {
             var user = await GetUserAsync(follower.Id);
+
             var followee = await GetUserByUserNameAsync(userName);
+
+            if (user is null || followee is null) return null;
 
             if (follow)
             {

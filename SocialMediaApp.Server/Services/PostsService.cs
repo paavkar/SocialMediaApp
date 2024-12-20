@@ -44,18 +44,9 @@ namespace SocialMediaApp.Server.Services
             if (!unlike) likeCount = post.LikeCount + 1;
             else likeCount = post.LikeCount - 1;
 
-            if (unlike)
-            {
-                var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount, true);
+            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount, unlike);
 
-                return updatedPostUser;
-            }
-            else
-            {
-                var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount);
-
-                return updatedPostUser;
-            }
+            return updatedPostUser;
         }
     }
 }
