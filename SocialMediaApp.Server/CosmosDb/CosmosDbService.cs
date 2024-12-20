@@ -7,14 +7,14 @@ namespace SocialMediaApp.Server.CosmosDb
 {
     public class CosmosDbService(CosmosDbFactory cosmosDbFactory) : ICosmosDbService
     {
-        private Container _container => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "UserAccounts");
-        private Container _roleContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "AccountRoles");
-        private Container _roleAccountContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "LinkedRoles");
-        private Container _postContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "Posts");
+        private Container UserContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "UserAccounts");
+        private Container RoleContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "AccountRoles");
+        private Container RoleAccountContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "LinkedRoles");
+        private Container PostContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "Posts");
 
         public async Task<UserAccount> GetUserAsync(string userId)
         {
-            var userResponse = await _container.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
+            var userResponse = await UserContainer.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
 
             return userResponse.Resource;
         }
@@ -28,11 +28,11 @@ namespace SocialMediaApp.Server.CosmosDb
             {
                 var role = await GetRoleByNameAsync("User");
 
-                var response = await _container.CreateItemAsync(account, new PartitionKey(account.PartitionKey));
+                var response = await UserContainer.CreateItemAsync(account, new PartitionKey(account.PartitionKey));
 
                 AccountRoleLinked linkedRole = new() { RoleId = role.Id, AccountId = response.Resource.Id };
 
-                var addRoleResponse = await _roleAccountContainer.CreateItemAsync(linkedRole, new PartitionKey(linkedRole.RoleId));
+                var addRoleResponse = await RoleAccountContainer.CreateItemAsync(linkedRole, new PartitionKey(linkedRole.RoleId));
 
                 return response.Resource;
             }
@@ -64,7 +64,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<UserAccount> GetUserFromFeedIterator(QueryDefinition parameterizedQuery)
         {
-            using FeedIterator<UserAccount> feedIterator = _container.GetItemQueryIterator<UserAccount>(
+            using FeedIterator<UserAccount> feedIterator = UserContainer.GetItemQueryIterator<UserAccount>(
                 queryDefinition: parameterizedQuery);
 
             List<UserAccount> existingAccounts = [];
@@ -101,7 +101,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 user.Following.Remove(user.Following.Find(f => f.Id == followee.Id)!);
             }
 
-            var response = await _container.PatchItemAsync<UserAccount>(
+            var response = await UserContainer.PatchItemAsync<UserAccount>(
                 followee.Id,
                 new PartitionKey("User"),
                 patchOperations: new[]
@@ -110,7 +110,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 }
             );
 
-            var userResponse = await _container.PatchItemAsync<UserAccount>(
+            var userResponse = await UserContainer.PatchItemAsync<UserAccount>(
                 user.Id,
                 new PartitionKey("User"),
                 patchOperations: new[]
@@ -126,7 +126,7 @@ namespace SocialMediaApp.Server.CosmosDb
         {
             var roleToCreate = new AccountRole() { RoleName = roleName };
 
-            var response = await _roleContainer.CreateItemAsync(roleToCreate, new PartitionKey(roleToCreate.PartitionKey));
+            var response = await RoleContainer.CreateItemAsync(roleToCreate, new PartitionKey(roleToCreate.PartitionKey));
 
             return response.Resource;
         }
@@ -137,7 +137,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM UserRoles ur WHERE ur.roleName = @Name")
                 .WithParameter("@Name", roleName);
 
-            using FeedIterator<AccountRole> feedIterator = _roleContainer.GetItemQueryIterator<AccountRole>(
+            using FeedIterator<AccountRole> feedIterator = RoleContainer.GetItemQueryIterator<AccountRole>(
                 queryDefinition: parameterizedQuery);
 
             List<AccountRole> existingRoles = [];
@@ -164,7 +164,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM LinkedRoles lr WHERE lr.accountId = @AccountId")
                 .WithParameter("@AccountId", account.Id);
 
-            using FeedIterator<AccountRoleLinked> feedIterator = _roleAccountContainer.GetItemQueryIterator<AccountRoleLinked>(
+            using FeedIterator<AccountRoleLinked> feedIterator = RoleAccountContainer.GetItemQueryIterator<AccountRoleLinked>(
                 queryDefinition: parameterizedQuery);
 
             List<AccountRoleLinked> existingRoles = [];
@@ -185,7 +185,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
                 string id = userRole.RoleId;
 
-                var response = await _roleContainer.ReadItemAsync<AccountRole>(id, new PartitionKey("AccountRole"));
+                var response = await RoleContainer.ReadItemAsync<AccountRole>(id, new PartitionKey("AccountRole"));
 
                 return response.Resource.RoleName;
             }
@@ -197,16 +197,16 @@ namespace SocialMediaApp.Server.CosmosDb
             var parameterizedQuery = new QueryDefinition
                 ("SELECT * FROM Posts");
 
-            using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
+            using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
 
             List<Post> allPosts = [];
 
             while (feedIterator.HasMoreResults)
             {
-                FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
+                //FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
 
-                foreach (var post in posts)
+                foreach (Post post in await feedIterator.ReadNextAsync())
                 {
                     allPosts.Add(post);
                 }
@@ -221,7 +221,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt DESC")
                 .WithParameter("@UserId", userId);
 
-            using FeedIterator<Post> feedIterator = _postContainer.GetItemQueryIterator<Post>(
+            using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
 
             List<Post> userPosts = [];
@@ -241,21 +241,23 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<Post> CreatePostAsync(Post post)
         {
-            var response = await _postContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
+            var response = await PostContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
 
             return response.Resource;
         }
 
         public async Task<bool> DeletePostAsync(string postId, string userId)
         {
-            var response = await _postContainer.DeleteItemAsync<Post>(postId, new PartitionKey($"Post-{userId}"));
+            var response = await PostContainer.DeleteItemAsync<Post>(postId, new PartitionKey($"Post-{userId}"));
 
             if (response.StatusCode == HttpStatusCode.NoContent)
             {
                 var usersToUpdate = new List<UserAccount>();
 
-                using (FeedIterator<UserAccount> feedIterator = _container.GetItemLinqQueryable<UserAccount>()
-                    .Where(u => u.RepostedPosts.Any(rp => rp.Id == postId) || u.LikedPosts.Any(lp => lp.Id == postId))
+                using (FeedIterator<UserAccount> feedIterator = UserContainer.GetItemLinqQueryable<UserAccount>()
+                    .Where(u => u.RepostedPosts.Any(rp => rp.Id == postId)
+                            || u.LikedPosts.Any(lp => lp.Id == postId)
+                            || u.Bookmarks.Any(b => b.Id == postId))
                     .ToFeedIterator())
                 {
                     while (feedIterator.HasMoreResults)
@@ -264,19 +266,21 @@ namespace SocialMediaApp.Server.CosmosDb
                         {
                             user.RepostedPosts.RemoveAll(rp => rp.Id == postId);
                             user.LikedPosts.RemoveAll(lp => lp.Id == postId);
+                            user.Bookmarks.RemoveAll(b => b.Id == postId);
                             usersToUpdate.Add(user);
                         }
                     }
                 }
                 foreach (var user in usersToUpdate)
                 {
-                    await _container.PatchItemAsync<UserAccount>(
+                    await UserContainer.PatchItemAsync<UserAccount>(
                         user.Id,
                         new PartitionKey("User"),
                         patchOperations: new[]
                         {
                             PatchOperation.Replace("/repostedPosts", user.RepostedPosts),
-                            PatchOperation.Replace("/likedPosts", user.LikedPosts)
+                            PatchOperation.Replace("/likedPosts", user.LikedPosts),
+                            PatchOperation.Replace("/bookmarks", user.Bookmarks)
                         }
                     );
                 }
@@ -287,14 +291,21 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<Post> GetPostByIdAsync(string id, string userId)
         {
-            var response = await _postContainer.ReadItemAsync<Post>(id, new PartitionKey($"Post-{userId}"));
+            try
+            {
+                var response = await PostContainer.ReadItemAsync<Post>(id, new PartitionKey($"Post-{userId}"));
 
-            return response.Resource;
+                return response.Resource;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public async Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false)
         {
-            var response = await _postContainer.PatchItemAsync<Post>(
+            var response = await PostContainer.PatchItemAsync<Post>(
                 id,
                 new PartitionKey($"Post-{postUserId}"),
                 patchOperations: new[]
@@ -313,10 +324,10 @@ namespace SocialMediaApp.Server.CosmosDb
             }
             else
             {
-                userLikedPosts.Remove(userLikedPosts.Find(p => p.Id == post.Id)!);
+                userLikedPosts.RemoveAll(p => p.Id == post.Id);
             }
 
-            var userResponse = await _postContainer.PatchItemAsync<UserAccount>(
+            var userResponse = await UserContainer.PatchItemAsync<UserAccount>(
                 userId,
                 new PartitionKey($"User"),
                 patchOperations: new[]

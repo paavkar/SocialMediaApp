@@ -7,21 +7,14 @@ namespace SocialMediaApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class UserController(UserManager userManager) : ControllerBase
     {
-        private readonly UserManager _userManager;
-
-        public UserController(UserManager userManager)
-        {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        }
-
         [HttpGet("{userName}")]
         public async Task<IActionResult> GetUser(string userName)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
 
-            var user = await _userManager.GetUserByUserNameAsync(userName);
+            var user = await userManager.GetUserByUserNameAsync(userName);
 
             if (user is null) return NotFound("No user found with given username.");
 
@@ -61,13 +54,13 @@ namespace SocialMediaApp.Server.Controllers
 
             if (HttpContext.Request.Path.Value!.Contains("follow-user"))
             {
-                var user = await _userManager.FollowAsync(username, follower);
+                var user = await userManager.FollowAsync(username, follower);
 
                 return Ok("User followed successfully.");
             }
             else
             {
-                var user = await _userManager.FollowAsync(username, follower, false);
+                var user = await userManager.FollowAsync(username, follower, false);
 
                 return Ok("User unfollowed successfully.");
             }

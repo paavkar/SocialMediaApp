@@ -7,25 +7,18 @@ namespace SocialMediaApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController : ControllerBase
+    public class PostController(UserManager userManager, PostsService postsService) : ControllerBase
     {
-        private readonly UserManager _userManager;
-        private readonly PostsService _postsService;
-
-        public PostController(UserManager userManager, PostsService postsService)
-        {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _postsService = postsService;
-        }
-
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
 
+            Console.WriteLine($"user ID: {userId}");
+
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
-            var posts = await _postsService.GetAllPostsAsync();
+            var posts = await postsService.GetAllPostsAsync();
 
             return Ok(posts);
         }
@@ -36,9 +29,9 @@ namespace SocialMediaApp.Server.Controllers
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
-            var user = await _userManager.GetUserByIdAsync(userId);
+            var user = await userManager.GetUserByIdAsync(userId);
 
-            var posts = await _postsService.GetUserPostsAsync(userId);
+            var posts = await postsService.GetUserPostsAsync(userId);
 
             List<dynamic> chronologicalPosts = [];
             Dictionary<string, dynamic> postDictionary = [];
@@ -74,13 +67,13 @@ namespace SocialMediaApp.Server.Controllers
 
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
-            var user = await _userManager.GetUserByIdAsync(userId);
+            var user = await userManager.GetUserByIdAsync(userId);
 
             post.PartitionKey = $"Post-{userId}";
 
-            var createdPost = await _postsService.CreatePostAsync(post);
+            var createdPost = await postsService.CreatePostAsync(post);
 
-            var userPosts = await _postsService.GetUserPostsAsync(userId);
+            var userPosts = await postsService.GetUserPostsAsync(userId);
 
             return CreatedAtAction(nameof(Post), new { createdPost, userPosts });
         }
@@ -94,35 +87,42 @@ namespace SocialMediaApp.Server.Controllers
 
             if (userId != postAuthor.Id) return Unauthorized("You are not authorized to delete this post.");
 
-            var deleted = await _postsService.DeletePostAsync(postId, userId);
+            var deleted = await postsService.DeletePostAsync(postId, userId);
 
             if (deleted)
             {
-                var userPosts = await _postsService.GetUserPostsAsync(userId);
+                var userPosts = await postsService.GetUserPostsAsync(userId);
 
                 return Ok(new { StatusCode = StatusCodes.Status204NoContent, userPosts });
             }
             return BadRequest("Post could not be deleted.");
         }
 
-        [HttpPatch("like-post/{postId}")]
-        [HttpPatch("unlike-post/{postId}")]
-        public async Task<IActionResult> LikePost(string postId)
+        [HttpPatch("like-post/{authorId}/{postId}")]
+        [HttpPatch("unlike-post/{authorId}/{postId}")]
+        public async Task<IActionResult> LikePost(string authorId, string postId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-            Console.WriteLine(HttpContext.Request.Path.Value);
 
             if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
+            var user = await userManager.GetUserByIdAsync(userId);
+
             if (HttpContext.Request.Path.Value!.Contains("unlike"))
             {
-                var updatedPostUser = await _postsService.LikePostAsync(postId, userId, true);
+                if (user.LikedPosts.Find(p => p.Id == postId) is null)
+                    return BadRequest("You have not liked this post.");
+
+                var updatedPostUser = await postsService.LikePostAsync(postId, authorId, userId, true);
 
                 return Ok(updatedPostUser);
             }
             else
             {
-                var updatedPostUser = await _postsService.LikePostAsync(postId, userId);
+                if (user.LikedPosts.Find(p => p.Id == postId) is not null)
+                    return BadRequest("You have already liked this post.");
+
+                var updatedPostUser = await postsService.LikePostAsync(postId, authorId, userId);
 
                 return Ok(updatedPostUser);
             }

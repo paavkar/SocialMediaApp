@@ -6,30 +6,35 @@ namespace SocialMediaApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController(UserManager userManager, SignInManager signInManager) : ControllerBase
     {
-        private readonly UserManager _userManager;
-        private readonly SignInManager _signInManager;
-
-        public AuthController(UserManager userManager, SignInManager signInManager)
-        {
-            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-            _signInManager = signInManager;
-        }
-
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO registerDto)
         {
-            var user = await _userManager.CreateUserAsync(registerDto);
+            var user = await userManager.CreateUserAsync(registerDto);
 
-            if (user is not null) return CreatedAtAction(nameof(Register), user);
+            var userDto = new UserDTO()
+            {
+                Id = user.Id,
+                DisplayName = user.DisplayName,
+                UserName = user.UserName,
+                Email = user.Email,
+                LikedPosts = user.LikedPosts,
+                RepostedPosts = user.RepostedPosts,
+                Bookmarks = user.Bookmarks,
+                AccountSettings = user.AccountSettings,
+                Followers = user.Followers,
+                Following = user.Following
+            };
+
+            if (user is not null) return CreatedAtAction(nameof(Register), userDto);
             else return BadRequest(new { Message = "There was an issue creating the account. Please try again later", StatusCode = StatusCodes.Status400BadRequest });
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO loginDto)
         {
-            var userToken = await _signInManager.PasswordSignInAsync(loginDto);
+            var userToken = await signInManager.PasswordSignInAsync(loginDto);
 
             if (userToken is not null) return Ok(userToken);
 

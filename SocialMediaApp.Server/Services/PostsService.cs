@@ -33,17 +33,29 @@ namespace SocialMediaApp.Server.Services
             return postDeleted;
         }
 
-        public async Task<object> LikePostAsync(string id, string userId, bool unlike = false)
+        public async Task<object> LikePostAsync(string id, string authorId, string userId, bool unlike = false)
         {
-            var post = await cosmosDbService.GetPostByIdAsync(id, userId);
+            var post = await cosmosDbService.GetPostByIdAsync(id, authorId);
+
+            if (post is null) return new { Message = "There was an error trying to fetch the post." };
+
             int likeCount;
 
             if (!unlike) likeCount = post.LikeCount + 1;
             else likeCount = post.LikeCount - 1;
 
-            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, post.Author.Id, likeCount);
+            if (unlike)
+            {
+                var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount, true);
 
-            return updatedPostUser;
+                return updatedPostUser;
+            }
+            else
+            {
+                var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount);
+
+                return updatedPostUser;
+            }
         }
     }
 }
