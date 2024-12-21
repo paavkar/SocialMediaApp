@@ -21,7 +21,7 @@ namespace SocialMediaApp.Server.Controllers
 
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized(new { Message = "This user requires sign-in to view their profile." });
-            if (user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
+            if (userId != user.Id && user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
                 return Unauthorized(new
                 {
                     Message = "This user's profile is private.",

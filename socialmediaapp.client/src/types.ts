@@ -47,9 +47,10 @@ export interface User {
     likedPosts: Post[];
     repostedPosts: Post[];
     bookmarks: Post[];
-    accountSetting: AccountSettings;
+    accountSettings: AccountSettings;
     following: Author[];
     followers: Author[];
+    followRequests: Author[];
 }
 
 export interface RegisterDTO {

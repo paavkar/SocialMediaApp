@@ -15,23 +15,11 @@ namespace SocialMediaApp.Server.Services
             if (user is not null && hashedPassword == user.PasswordHash)
             {
                 var userRole = await roleManager.GetUserRoleAsync(user);
-                var userDto = new UserDTO()
-                {
-                    Id = user.Id,
-                    DisplayName = user.DisplayName,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    LikedPosts = user.LikedPosts,
-                    RepostedPosts = user.RepostedPosts,
-                    Bookmarks = user.Bookmarks,
-                    AccountSettings = user.AccountSettings,
-                    Followers = user.Followers,
-                    Following = user.Following
-                };
+
 
                 var token = await CreateToken(user, userRole);
 
-                return new { User = userDto, Token = token };
+                return new { User = user.ToUserDTO(), Token = token };
             }
             else return null;
         }

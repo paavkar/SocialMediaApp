@@ -6,6 +6,7 @@ import { User } from './types';
 import { RootState } from "./state";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { ProfilePage } from './Pages/ProfilePage';
 
 function App() {
     const isAuth = Boolean(useSelector<RootState>((state) => state.token));
@@ -14,16 +15,15 @@ function App() {
     const dispatch = useDispatch();
 
     return (
-        <div>
-            <BrowserRouter>
+        <BrowserRouter>
             <Routes>
                 <Route path='/' element={isAuth ? <HomePage /> : <SignIn /> } />
-                <Route path='/login' element={isAuth ? <Navigate to="/" /> : <SignIn /> } />
-                <Route path='/register' element={isAuth ? <Navigate to="/" /> : <Register /> } />
+                <Route path='login' element={isAuth ? <Navigate to="/" /> : <SignIn /> } />
+                <Route path='register' element={isAuth ? <Navigate to="/" /> : <Register /> } />
+                <Route path=':userName' element={<ProfilePage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
-            </BrowserRouter>
-        </div>
+        </BrowserRouter>
     );
 }
 

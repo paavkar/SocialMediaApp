@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Post } from "../../types";
+import { Post, User } from "../../types";
 import { RootState } from "../../state";
 import { useSelector } from "react-redux";
 import { PostCard } from "./PostCard";
@@ -7,9 +7,11 @@ import { NavLink } from "react-router";
 import { useDispatch } from "react-redux";
 import { setLogout } from "../../state";
 import { NewPost } from "./NewPost";
+import Layout from "../layout"
 
 export function HomePage() {
     const [posts, setPosts] = useState<Post[]>([]);
+    const user = useSelector<RootState, User | null>((state) => state.user);
     const token = useSelector<RootState, string | null>((state) => state.token);
     const dispatch = useDispatch();
 
@@ -39,30 +41,17 @@ export function HomePage() {
 
 
     return (
-        <div style={{ display:' flex', flexDirection: 'row', width: '90vw', marginLeft: '5em' }}>
-            <div style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                width: '30vw', fontSize: "1.5em", marginTop: '1em' }}>
-                <NavLink to={"/"}>Home</NavLink>
-                <NavLink to={""} onClick={() => dispatch(setLogout())}>Logout</NavLink>
+        <Layout>
+            <div>
+                <NewPost />
             </div>
-            <div style={{ borderLeft: '1px solid cyan', height: '100vw' }}></div>
-            <div style={{ display:' flex', flexDirection: 'column', width: '30vw', marginTop: '1em' }}>
-                <div>
-                    <NewPost />
-                </div>
-                <div>
-                    {posts.map((post) => {
-                        return (
-                            <PostCard post={post} />
-                        )
-                    })}
-                </div> 
-            </div>
-            <div style={{ borderLeft: '1px solid cyan', height: '100vw' }}></div>
-            <div style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                        width: '30vw', marginTop: '1em' }}>
-
-            </div>
-        </div>
+            <div>
+                {posts.map((post) => {
+                    return (
+                        <PostCard post={post} />
+                    )
+                })}
+            </div> 
+        </Layout>
     )
 }
