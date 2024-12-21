@@ -40,6 +40,9 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "followers")]
         public List<Author> Followers { get; set; } = [];
 
+        [JsonProperty(PropertyName = "followRequests")]
+        public List<Author> FollowRequests { get; set; } = [];
+
         [JsonProperty(PropertyName = "partitionKey")]
         public string PartitionKey { get; set; } = "User";
 
@@ -60,7 +63,8 @@ namespace SocialMediaApp.Server.Models
                 Bookmarks = this.Bookmarks,
                 AccountSettings = this.AccountSettings,
                 Following = this.Following,
-                Followers = this.Followers
+                Followers = this.Followers,
+                FollowRequests = this.FollowRequests
             };
         }
     }

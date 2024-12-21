@@ -30,7 +30,7 @@ namespace SocialMediaApp.Server.Controllers
 
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized("This user requires sign-in to view their profile.");
-            if (user.AccountSettings.IsPrivate && user.Followers.Any(f => f.Id == userId))
+            if (user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
                 return Unauthorized("This user's profile is private.");
 
             var posts = await postsService.GetUserPostsAsync(user.Id);

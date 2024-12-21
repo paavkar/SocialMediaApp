@@ -106,8 +106,13 @@ namespace SocialMediaApp.Server.CosmosDb
 
             if (follow)
             {
-                followee.Followers.Add(follower);
-                user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName });
+                if (followee.AccountSettings.IsPrivate)
+                    followee.FollowRequests.Add(follower);
+                else
+                {
+                    followee.Followers.Add(follower);
+                    user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
+                }
             }
             else
             {
@@ -115,12 +120,37 @@ namespace SocialMediaApp.Server.CosmosDb
                 user.Following.Remove(user.Following.Find(f => f.Id == followee.Id)!);
             }
 
-            var response = await UserContainer.PatchItemAsync<UserAccount>(
+            var updatedUser = await FollowPatchOperation(followee, user);
+
+            return updatedUser;
+        }
+
+        public async Task<UserAccount> ConfirmFollowAsync(string userName, Author follower)
+        {
+            var user = await GetUserByUserNameAsync(userName);
+
+            var followee = await GetUserByUserNameAsync(userName);
+
+            if (user is null || followee is null) return null;
+
+            followee.Followers.Add(follower);
+            followee.FollowRequests.RemoveAll(f => f.Id == follower.Id);
+            user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
+
+            var updatedUser = await FollowPatchOperation(followee, user);
+
+            return updatedUser;
+        }
+
+        public async Task<UserAccount> FollowPatchOperation(UserAccount followee, UserAccount user)
+        {
+            await UserContainer.PatchItemAsync<UserAccount>(
                 followee.Id,
                 new PartitionKey("User"),
                 patchOperations: new[]
                 {
-                    PatchOperation.Replace("/followers", followee.Followers)
+                    PatchOperation.Replace("/followers", followee.Followers),
+                    PatchOperation.Replace("/followRequests", followee.FollowRequests)
                 }
             );
 

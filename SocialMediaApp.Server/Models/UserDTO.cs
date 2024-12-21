@@ -13,5 +13,6 @@
         public AccountSettings AccountSettings { get; set; }
         public List<Author> Following { get; set; } = [];
         public List<Author> Followers { get; set; } = [];
+        public List<Author> FollowRequests { get; set; } = [];
     }
 }
