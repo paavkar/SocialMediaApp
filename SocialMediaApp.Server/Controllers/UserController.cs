@@ -16,24 +16,25 @@ namespace SocialMediaApp.Server.Controllers
 
             var user = await userManager.GetUserByUserNameAsync(userName);
 
-            if (user is null) return NotFound("No user found with given username.");
+            if (user is null)
+                return NotFound("No user found with given username.");
 
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized("This user requires sign-in to view their profile.");
+            if (user.AccountSettings.IsPrivate && user.Followers.Any(f => f.Id == userId))
+                return Unauthorized(new
+                {
+                    Message = "This user's profile is private.",
+                    User = new Author()
+                    {
+                        Id = user.Id,
+                        DisplayName = user.DisplayName,
+                        Description = user.Description,
+                        UserName = user.UserName
+                    }
+                });
 
-            var userDto = new UserDTO()
-            {
-                Id = user.Id,
-                DisplayName = user.DisplayName,
-                UserName = user.UserName,
-                Email = user.Email,
-                LikedPosts = user.LikedPosts,
-                RepostedPosts = user.RepostedPosts,
-                Bookmarks = user.Bookmarks,
-                AccountSettings = user.AccountSettings,
-                Followers = user.Followers,
-                Following = user.Following
-            };
+            var userDto = user.ToUserDTO();
 
             return Ok(userDto);
         }
@@ -43,14 +44,14 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> Follow(string username, [FromBody] Author follower)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
-
-            if (follower is null) return BadRequest("No follower provided.");
-
-            if (follower.Id != userId) return BadRequest("Follower ID does not match token ID.");
-
-            if (follower.UserName == username) return BadRequest("You are not allowed to follow yourself.");
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
+            if (follower is null)
+                return BadRequest("No follower provided.");
+            if (follower.Id != userId)
+                return BadRequest("Follower ID does not match token ID.");
+            if (follower.UserName == username)
+                return BadRequest("You are not allowed to follow yourself.");
 
             var user = await userManager.GetUserByIdAsync(userId);
 
@@ -65,7 +66,9 @@ namespace SocialMediaApp.Server.Controllers
                     return NotFound($"Couldn't find a user with the username {username}" +
                         $" or with the id {userId}");
 
-                return Ok(new { Message = "User unfollowed successfully.", updatedUser });
+                var userDto = updatedUser.ToUserDTO();
+
+                return Ok(new { Message = "User unfollowed successfully.", userDto });
             }
             else
             {
@@ -78,7 +81,9 @@ namespace SocialMediaApp.Server.Controllers
                     return NotFound($"Couldn't find a user with the username {username}" +
                         $" or with the id {userId}");
 
-                return Ok(new { Message = "User followed successfully", updatedUser });
+                var userDto = updatedUser.ToUserDTO();
+
+                return Ok(new { Message = "User followed successfully", userDto });
             }
         }
     }

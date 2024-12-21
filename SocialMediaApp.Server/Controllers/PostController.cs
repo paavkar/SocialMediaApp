@@ -13,25 +13,27 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> GetAll()
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-
-            Console.WriteLine($"user ID: {userId}");
-
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
 
             var posts = await postsService.GetAllPostsAsync();
 
             return Ok(posts);
         }
 
-        [HttpGet("user-posts")]
-        public async Task<IActionResult> GetUserPosts()
+        [HttpGet("user-posts/{userName}")]
+        public async Task<IActionResult> GetUserPosts(string userName)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
 
-            var user = await userManager.GetUserByIdAsync(userId);
+            var user = await userManager.GetUserByUserNameAsync(userName);
 
-            var posts = await postsService.GetUserPostsAsync(userId);
+            if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
+                return Unauthorized("This user requires sign-in to view their profile.");
+            if (user.AccountSettings.IsPrivate && user.Followers.Any(f => f.Id == userId))
+                return Unauthorized("This user's profile is private.");
+
+            var posts = await postsService.GetUserPostsAsync(user.Id);
 
             List<dynamic> chronologicalPosts = [];
             Dictionary<string, dynamic> postDictionary = [];
@@ -60,19 +62,31 @@ namespace SocialMediaApp.Server.Controllers
             return Ok(chronologicalPosts);
         }
 
+        [HttpGet("post/{userName}/{postId}")]
+        public async Task<IActionResult> GetPost(string userName, string postId)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
+
+            var user = await userManager.GetUserByUserNameAsync(userName);
+            var post = await postsService.GetPostByIdAsync(postId, user.Id);
+
+            return Ok(post);
+        }
+
         [HttpPost("post")]
         public async Task<IActionResult> Post([FromBody] Post post)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
 
             var user = await userManager.GetUserByIdAsync(userId);
 
             post.PartitionKey = $"Post-{userId}";
 
             var createdPost = await postsService.CreatePostAsync(post);
-
             var userPosts = await postsService.GetUserPostsAsync(userId);
 
             return CreatedAtAction(nameof(Post), new { createdPost, userPosts });
@@ -82,10 +96,10 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> DeletePost(string postId, [FromBody] Author postAuthor)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
-
-            if (userId != postAuthor.Id) return Unauthorized("You are not authorized to delete this post.");
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
+            if (userId != postAuthor.Id)
+                return Unauthorized("You are not authorized to delete this post.");
 
             var deleted = await postsService.DeletePostAsync(postId, userId);
 
@@ -103,8 +117,8 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> LikePost(string authorId, string postId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-
-            if (String.IsNullOrEmpty(userId)) return Unauthorized("No valid token given with request.");
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized("No valid token given with request.");
 
             var user = await userManager.GetUserByIdAsync(userId);
 

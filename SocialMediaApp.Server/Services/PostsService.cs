@@ -19,6 +19,13 @@ namespace SocialMediaApp.Server.Services
             return posts;
         }
 
+        public async Task<Post> GetPostByIdAsync(string id, string userId)
+        {
+            var post = await cosmosDbService.GetPostByIdAsync(id, userId);
+
+            return post;
+        }
+
         public async Task<Post> CreatePostAsync(Post post)
         {
             var createdPost = await cosmosDbService.CreatePostAsync(post);

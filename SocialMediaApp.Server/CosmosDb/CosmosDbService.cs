@@ -354,7 +354,9 @@ namespace SocialMediaApp.Server.CosmosDb
                 }
             );
 
-            return new { post = response.Resource, user = userResponse.Resource };
+            var userDto = userResponse.Resource.ToUserDTO();
+
+            return new { post = response.Resource, user = userDto };
         }
     }
 }

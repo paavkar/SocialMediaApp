@@ -10,6 +10,9 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "displayName")]
         public string DisplayName { get; set; }
 
+        [JsonProperty(PropertyName = "description")]
+        public string Description { get; set; }
+
         [JsonProperty(PropertyName = "userName")]
         public string UserName { get; set; }
 
@@ -42,5 +45,23 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "type")]
         public string Type { get; set; } = "UserAccount";
+
+        public UserDTO ToUserDTO()
+        {
+            return new UserDTO
+            {
+                Id = this.Id,
+                DisplayName = this.DisplayName,
+                Description = this.Description,
+                UserName = this.UserName,
+                Email = this.Email,
+                LikedPosts = this.LikedPosts,
+                RepostedPosts = this.RepostedPosts,
+                Bookmarks = this.Bookmarks,
+                AccountSettings = this.AccountSettings,
+                Following = this.Following,
+                Followers = this.Followers
+            };
+        }
     }
 }
