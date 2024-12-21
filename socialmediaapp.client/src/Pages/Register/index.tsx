@@ -59,117 +59,116 @@ export default function Register() {
                 <h1>Register</h1>
             </div>
             <form onSubmit={handleSubmit(onSubmit)}>
-            
-            {httpError && 
-            <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>{httpError}</p>}
+                {httpError && 
+                <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>{httpError}</p>}
 
-            {httpSuccess && 
-            <p style={{ color: 'green', width: '17em', height: '2em', borderRadius: '0.2em' }}>{httpSuccess}</p>}
+                {httpSuccess && 
+                <p style={{ color: 'green', width: '17em', height: '2em', borderRadius: '0.2em' }}>{httpSuccess}</p>}
 
-            <div style={{ display:'flex', flexDirection: 'column' }}>
-                <label style={{ marginBottom: '0.2em', fontSize: '20px' }} 
-                       htmlFor="email">
-                        Email
-                </label>
+                <div style={{ display:'flex', flexDirection: 'column' }}>
+                    <label style={{ marginBottom: '0.2em', fontSize: '20px' }} 
+                        htmlFor="email">
+                            Email
+                    </label>
 
-                {errors.email && (
-                    <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
-                        {`${errors.email.message}`}
-                    </p>
-                )}
+                    {errors.email && (
+                        <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
+                            {`${errors.email.message}`}
+                        </p>
+                    )}
 
-                <input style={{ width: '20em', height: '2em' }}
-                       {...register("email")}
-                       type="email" 
-                       id="email"
-                       placeholder="Email">
-                </input>
+                    <input style={{ width: '20em', height: '2em' }}
+                        {...register("email")}
+                        type="email" 
+                        id="email"
+                        placeholder="Email">
+                    </input>
 
-                <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
-                       htmlFor="userName">
-                        Username
-                </label>
+                    <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
+                        htmlFor="userName">
+                            Username
+                    </label>
 
-                {errors.userName && (
-                    <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
-                        {`${errors.userName.message}`}
-                    </p>
-                )}
+                    {errors.userName && (
+                        <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
+                            {`${errors.userName.message}`}
+                        </p>
+                    )}
 
-                <input style={{ width: '20em', height: '2em' }} 
-                       {...register("userName")}
-                       type="text" 
-                       id="userName"
-                       placeholder="Username">
-                </input>
+                    <input style={{ width: '20em', height: '2em' }} 
+                        {...register("userName")}
+                        type="text" 
+                        id="userName"
+                        placeholder="Username">
+                    </input>
 
-                <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
-                       htmlFor="displayName">
-                        Display name
-                </label>
+                    <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
+                        htmlFor="displayName">
+                            Display name
+                    </label>
 
-                {errors.displayName && (
-                    <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
-                        {`${errors.displayName.message}`}
-                    </p>
-                )}
+                    {errors.displayName && (
+                        <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
+                            {`${errors.displayName.message}`}
+                        </p>
+                    )}
 
-                <input style={{ width: '20em', height: '2em' }} 
-                       {...register("displayName")}
-                       type="text" 
-                       id="displayName"
-                       placeholder="Display name">
-                </input>
+                    <input style={{ width: '20em', height: '2em' }} 
+                        {...register("displayName")}
+                        type="text" 
+                        id="displayName"
+                        placeholder="Display name">
+                    </input>
 
-                <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
-                       htmlFor="password">
-                        Password
-                </label>
+                    <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
+                        htmlFor="password">
+                            Password
+                    </label>
 
-                {errors.password && (
-                    <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
-                        {`${errors.password.message}`}
-                    </p>
-                )}
+                    {errors.password && (
+                        <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
+                            {`${errors.password.message}`}
+                        </p>
+                    )}
 
-                <input style={{ width: '20em', height: '2em' }} 
-                       {...register("password")}
-                       type="password" 
-                       id="password"
-                       placeholder="Password">
-                </input>
+                    <input style={{ width: '20em', height: '2em' }} 
+                        {...register("password")}
+                        type="password" 
+                        id="password"
+                        placeholder="Password">
+                    </input>
 
-                <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
-                       htmlFor="confirmPassword">
-                        Confirm password
-                </label>
+                    <label style={{ marginBottom: '0.2em', marginTop: '1em', fontSize: '20px' }} 
+                        htmlFor="confirmPassword">
+                            Confirm password
+                    </label>
 
-                {errors.confirmPassword && (
-                    <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
-                        {`${errors.confirmPassword.message}`}
-                    </p>
-                )}
+                    {errors.confirmPassword && (
+                        <p style={{ color: 'red', width: '17em', height: '2em', borderRadius: '0.2em' }}>
+                            {`${errors.confirmPassword.message}`}
+                        </p>
+                    )}
 
-                <input style={{ width: '20em', height: '2em' }} 
-                       {...register("confirmPassword")}
-                       type="password" 
-                       id="confirmPassword"
-                       placeholder="Confirm password">
-                </input>
+                    <input style={{ width: '20em', height: '2em' }} 
+                        {...register("confirmPassword")}
+                        type="password" 
+                        id="confirmPassword"
+                        placeholder="Confirm password">
+                    </input>
 
-                <button type="submit" 
-                    disabled={isSubmitting} 
-                    style={{ marginTop: '1em', backgroundColor: 'green' }}>
-                    Register
-                </button>
-            </div>
-
-            <div>
-                <div style={{ display:'flex', flexDirection: 'column', marginTop: '1em' }}>
-                    <span>Already have an account?</span>
-                   <NavLink to="/login">Sign in here.</NavLink> 
+                    <button type="submit" 
+                        disabled={isSubmitting} 
+                        style={{ marginTop: '1em', backgroundColor: 'green' }}>
+                        Register
+                    </button>
                 </div>
-            </div>
+
+                <div>
+                    <div style={{ display:'flex', flexDirection: 'column', marginTop: '1em' }}>
+                        <span>Already have an account?</span>
+                    <NavLink to="/login">Sign in here.</NavLink> 
+                    </div>
+                </div>
             </form>
         </div>
     )

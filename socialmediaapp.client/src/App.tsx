@@ -3,7 +3,7 @@ import SignIn from './Pages/SignIn'
 import Register from './Pages/Register';
 import { HomePage } from './Pages/HomePage';
 import { User } from './types';
-import { RootState, setLogout, setLogin } from "./state";
+import { RootState } from "./state";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 
