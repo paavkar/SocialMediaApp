@@ -121,17 +121,17 @@ namespace SocialMediaApp.Server.Controllers
             return Ok(new { Message = "Accepted the follow request.", userDto });
         }
 
-        [HttpGet("search/{searchString}")]
-        public async Task<IActionResult> SearchUsers(string searchString)
+        [HttpGet("search-users/{searchTerm}")]
+        public async Task<IActionResult> SearchUsers(string searchTerm)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
             if (String.IsNullOrEmpty(userId))
                 return Unauthorized(new { Message = "No valid token given with request." });
 
-            var users = await userManager.MatchingUsersAsync(searchString);
+            var users = await userManager.MatchingUsersAsync(searchTerm);
 
             if (users is null || users.Count == 0)
-                return NotFound(new { Message = "No users found with given search string." });
+                return NotFound(new { Message = "No users found with given search term." });
 
             var userDtos = users.Select(u => u.ToUserDTO()).ToList();
 

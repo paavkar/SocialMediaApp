@@ -141,5 +141,20 @@ namespace SocialMediaApp.Server.Controllers
                 return Ok(updatedPostUser);
             }
         }
+
+        [HttpGet("search-posts/{searchTerm}")]
+        public async Task<IActionResult> SearchPosts(string searchTerm)
+        {
+            var userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            var posts = await postsService.GetMatchingPostsAsync(searchTerm);
+
+            if (posts is null || posts.Count == 0)
+                return NotFound(new { Message = "No posts found with given search term." });
+
+            return Ok(posts);
+        }
     }
 }

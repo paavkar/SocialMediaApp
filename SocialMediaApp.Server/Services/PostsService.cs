@@ -55,5 +55,12 @@ namespace SocialMediaApp.Server.Services
 
             return updatedPostUser;
         }
+
+        public async Task<List<Post>> GetMatchingPostsAsync(string searchTerm)
+        {
+            var posts = await cosmosDbService.GetMatchingPostsAsync(searchTerm);
+
+            return posts;
+        }
     }
 }

@@ -171,12 +171,11 @@ namespace SocialMediaApp.Server.CosmosDb
             return userResponse.Resource;
         }
 
-        public async Task<List<UserAccount>> MatchingUsersAsync(string searchString)
+        public async Task<List<UserAccount>> MatchingUsersAsync(string searchTerm)
         {
-            searchString = searchString.ToLower();
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM UserAccounts ua WHERE CONTAINS(LOWER(ua.userName), @SearchString) OR CONTAINS(LOWER(ua.displayName), @SearchString)")
-                .WithParameter("@SearchString", searchString);
+                ("SELECT * FROM UserAccounts ua WHERE CONTAINS(LOWER(ua.userName), @SearchTerm) OR CONTAINS(LOWER(ua.displayName), @SearchTerm)")
+                .WithParameter("@SearchTerm", searchTerm.ToLower());
 
             using FeedIterator<UserAccount> feedIterator = UserContainer.GetItemQueryIterator<UserAccount>(
                 queryDefinition: parameterizedQuery);
@@ -415,6 +414,28 @@ namespace SocialMediaApp.Server.CosmosDb
             var userDto = userResponse.Resource.ToUserDTO();
 
             return new { post = response.Resource, user = userDto };
+        }
+
+        public async Task<List<Post>> GetMatchingPostsAsync(string searchTerm)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE CONTAINS(LOWER(p.text), @SearchTerm)")
+                .WithParameter("@SearchTerm", searchTerm.ToLower());
+
+            using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
+                queryDefinition: parameterizedQuery);
+
+            List<Post> matchingPosts = [];
+
+            while (feedIterator.HasMoreResults)
+            {
+                FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
+                foreach (var post in posts)
+                {
+                    matchingPosts.Add(post);
+                }
+            }
+            return matchingPosts;
         }
     }
 }
