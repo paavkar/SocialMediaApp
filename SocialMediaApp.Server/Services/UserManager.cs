@@ -68,6 +68,13 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
+        public async Task<List<UserAccount>> MatchingUsersAsync(string searchString)
+        {
+            var users = await cosmosDbUserService.MatchingUsersAsync(searchString);
+
+            return users;
+        }
+
         public string HashPassword(string password)
         {
             byte[] salt = BitConverter.GetBytes(16);

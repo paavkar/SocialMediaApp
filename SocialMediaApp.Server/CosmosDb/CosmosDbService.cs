@@ -171,6 +171,29 @@ namespace SocialMediaApp.Server.CosmosDb
             return userResponse.Resource;
         }
 
+        public async Task<List<UserAccount>> MatchingUsersAsync(string searchString)
+        {
+            searchString = searchString.ToLower();
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM UserAccounts ua WHERE CONTAINS(LOWER(ua.userName), @SearchString) OR CONTAINS(LOWER(ua.displayName), @SearchString)")
+                .WithParameter("@SearchString", searchString);
+
+            using FeedIterator<UserAccount> feedIterator = UserContainer.GetItemQueryIterator<UserAccount>(
+                queryDefinition: parameterizedQuery);
+
+            List<UserAccount> matchingUsers = [];
+
+            while (feedIterator.HasMoreResults)
+            {
+                FeedResponse<UserAccount> users = await feedIterator.ReadNextAsync();
+                foreach (var user in users)
+                {
+                    matchingUsers.Add(user);
+                }
+            }
+            return matchingUsers;
+        }
+
         public async Task<AccountRole> AddRoleAsync(string roleName)
         {
             var roleToCreate = new AccountRole() { RoleName = roleName };
