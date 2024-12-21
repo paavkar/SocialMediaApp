@@ -14,7 +14,7 @@ namespace SocialMediaApp.Server.Controllers
             var user = await userManager.CreateUserAsync(registerDto);
 
             if (user is null)
-                return BadRequest("Either the email or username is already taken.");
+                return BadRequest(new { Message = "Either the email or username is already taken." });
 
             var userDto = new UserDTO()
             {
@@ -31,7 +31,7 @@ namespace SocialMediaApp.Server.Controllers
             };
 
             if (user is not null) return CreatedAtAction(nameof(Register), userDto);
-            else return BadRequest(new { Message = "There was an issue creating the account. Please try again later", StatusCode = StatusCodes.Status400BadRequest });
+            else return BadRequest(new { Message = "There was an issue creating the account. Please try again later" });
         }
 
         [HttpPost("login")]
@@ -41,7 +41,7 @@ namespace SocialMediaApp.Server.Controllers
 
             if (userToken is not null) return Ok(userToken);
 
-            return Unauthorized(new { Message = "There was an issue logging in. Check your email and password.", StatusCode = StatusCodes.Status401Unauthorized });
+            return Unauthorized(new { Message = "There was an issue logging in. Check your email and password." });
         }
     }
 }

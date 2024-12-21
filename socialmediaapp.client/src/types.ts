@@ -53,8 +53,8 @@ export interface User {
 }
 
 export interface RegisterDTO {
+    email: string;
     displayName: string;
     userName: string;
-    email: string;
     password: string;
 }

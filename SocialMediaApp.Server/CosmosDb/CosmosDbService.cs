@@ -116,8 +116,13 @@ namespace SocialMediaApp.Server.CosmosDb
             }
             else
             {
-                followee.Followers.Remove(followee.Followers.Find(f => f.Id == follower.Id)!);
-                user.Following.Remove(user.Following.Find(f => f.Id == followee.Id)!);
+                if (followee.AccountSettings.IsPrivate && followee.FollowRequests.Any(f => f.Id == follower.Id))
+                    followee.FollowRequests.RemoveAll(f => f.Id == follower.Id);
+                else
+                {
+                    followee.Followers.Remove(followee.Followers.Find(f => f.Id == follower.Id)!);
+                    user.Following.Remove(user.Following.Find(f => f.Id == followee.Id)!);
+                }
             }
 
             var updatedUser = await FollowPatchOperation(followee, user);
