@@ -31,8 +31,7 @@ export default function Register() {
     const [httpSuccess, setHttpSuccess] = useState("");
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-
-        var response = await fetch("api/Auth/register",{
+        var response = await fetch("api/Auth/register", {
             method: "POST",
             body: JSON.stringify(values),
             headers: {

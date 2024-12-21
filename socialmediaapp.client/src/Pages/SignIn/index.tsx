@@ -5,13 +5,22 @@ import { useForm } from "react-hook-form"
 
 import { useState } from "react"
 
+
+import { useDispatch } from "react-redux";
+import { setLogin } from "../../state";
+import { useNavigate } from "react-router";
+
 const Schema = z.object({
     emailOrUserName: z.string().min(1, {  message: "Write your email or username" }),
     password: z.string().min(1, { message: "Write your password" }),
 })
 
 export default function SignIn() {
- const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<z.infer<typeof Schema>>({
+    
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<z.infer<typeof Schema>>({
         resolver: zodResolver(Schema),
         defaultValues: {
             emailOrUserName: "",
@@ -21,7 +30,6 @@ export default function SignIn() {
     const [httpError, setHttpError] = useState("");
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-    
             var response = await fetch("api/Auth/login",{
                 method: "POST",
                 body: JSON.stringify(values),
@@ -39,9 +47,9 @@ export default function SignIn() {
             else {
                 var userAndToken = await response.json()
 
-                // Do state management with user and token, and redirect
-    
+                dispatch(setLogin({ user: userAndToken.user, token: userAndToken.token }))
                 reset()
+                navigate("/")
             }
         }
 

@@ -25,7 +25,7 @@ export interface Post {
     accountsReposted: Author[];
     quotes: Post[];
     replies: Post[];
-    CreatedAt: Date;
+    createdAt: Date;
     author: Author;
     labels: string[];
     langs: string[];
