@@ -1,8 +1,8 @@
-import { useParams, NavLink } from "react-router"
+import { useParams } from "react-router"
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, setLogout } from "../../state";
+import { RootState, setUser } from "../../state";
 import { useEffect, useState } from "react";
-import { User, Post } from "../../types";
+import { User, Post, Author } from "../../types";
 import Layout from "../layout";
 import { PostCard } from "../HomePage/PostCard";
 
@@ -11,7 +11,7 @@ export function ProfilePage() {
     const dispatch = useDispatch()
     const token = useSelector<RootState, string | null>((state) => state.token);
     const loggedInUser = useSelector<RootState, User | null>((state) => state.user);
-    const [user, setUser] = useState<User>()
+    const [user, setDisplayedUser] = useState<User>()
     const [userPosts, setUserPosts] = useState<Post[]>()
     const [activeTab, setActiveTab] = useState("")
 
@@ -28,7 +28,7 @@ export function ProfilePage() {
         if (response.ok) {
             var userJson: User = await response.json()
 
-            setUser(userJson)
+            setDisplayedUser(userJson)
         }
     }
 
@@ -46,6 +46,31 @@ export function ProfilePage() {
             var userPostsJson: Post[] = await response.json()
 
             setUserPosts(userPostsJson)
+        }
+    }
+
+    async function followUser() {
+        var follower: Author = {
+            id: loggedInUser!.id,
+            displayName: loggedInUser!.displayName,
+            description: loggedInUser!.description,
+            userName: loggedInUser!.userName
+        }
+        var response = await fetch(`api/User/follow-user/${userName}`, {
+                method: "PATCH",
+                body: JSON.stringify(follower),
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `bearer ${token}`
+                }   
+            }
+        )
+
+        if (response.ok) {
+            var userJson = await response.json()
+            
+            dispatch(setUser({ user: userJson.updatedUser.user }))
+            setDisplayedUser(userJson.updatedUser.followee)
         }
     }
 
@@ -74,8 +99,11 @@ export function ProfilePage() {
                                     Edit profile
                                 </button>
                             : <button style={{ height: '2.5em', width: '5em', marginRight: '1em', 
-                                backgroundColor: 'green' }}>
-                                    Follow
+                                backgroundColor: 'green' }} onClick={followUser}>
+                                    {loggedInUser!.following.some(u => u.userName === userName)
+                                    ? <span>Unfollow</span>
+                                    : <span>Follow</span>
+                                    }
                                 </button>
                         }
                     </div>

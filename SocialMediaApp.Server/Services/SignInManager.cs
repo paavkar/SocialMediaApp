@@ -16,7 +16,6 @@ namespace SocialMediaApp.Server.Services
             {
                 var userRole = await roleManager.GetUserRoleAsync(user);
 
-
                 var token = await CreateToken(user, userRole);
 
                 return new { User = user.ToUserDTO(), Token = token };

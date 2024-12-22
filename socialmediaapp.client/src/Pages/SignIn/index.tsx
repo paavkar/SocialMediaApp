@@ -34,13 +34,13 @@ export default function SignIn() {
                 }
             })
     
-            if (response.status === 401) {
+            if (!response.ok) {
                 var error = await response.json()
                 setHttpError(error.message)
     
                 setTimeout(() => setHttpError(""), 5000)
             }
-            else {
+            if (response.ok) {
                 var userAndToken = await response.json()
 
                 dispatch(setLogin({ user: userAndToken.user, token: userAndToken.token }))

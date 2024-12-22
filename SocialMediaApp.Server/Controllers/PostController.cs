@@ -113,7 +113,6 @@ namespace SocialMediaApp.Server.Controllers
         }
 
         [HttpPatch("like-post/{authorId}/{postId}")]
-        [HttpPatch("unlike-post/{authorId}/{postId}")]
         public async Task<IActionResult> LikePost(string authorId, string postId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
@@ -122,24 +121,9 @@ namespace SocialMediaApp.Server.Controllers
 
             var user = await userManager.GetUserByIdAsync(userId);
 
-            if (HttpContext.Request.Path.Value!.Contains("unlike"))
-            {
-                if (user.LikedPosts.Find(p => p.Id == postId) is null)
-                    return BadRequest(new { Message = "You have not liked this post." });
+            var updatedPostUser = await postsService.LikePostAsync(postId, authorId, userId);
 
-                var updatedPostUser = await postsService.LikePostAsync(postId, authorId, userId, true);
-
-                return Ok(updatedPostUser);
-            }
-            else
-            {
-                if (user.LikedPosts.Find(p => p.Id == postId) is not null)
-                    return BadRequest(new { Message = "You have already liked this post." });
-
-                var updatedPostUser = await postsService.LikePostAsync(postId, authorId, userId);
-
-                return Ok(updatedPostUser);
-            }
+            return Ok(updatedPostUser);
         }
 
         [HttpGet("search-posts/{searchTerm}")]

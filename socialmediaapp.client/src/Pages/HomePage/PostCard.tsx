@@ -1,8 +1,10 @@
-import { Post } from "../../types"
+import { Post, User } from "../../types"
 import { RootState } from "../../state";
 import { useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useDispatch } from "react-redux";
+import { setUser } from "../../state";
 
 type PostProps = {
     post: Post;
@@ -12,6 +14,9 @@ export function PostCard({ post }: PostProps) {
     const [fetchedPost, setFetchedPost] = useState<Post>(post)
     const [currentDate, setCurrentDate] = useState<Date>(new Date())
     const token = useSelector<RootState, string | null>((state) => state.token);
+    const user = useSelector<RootState, User | null>((state) => state.user);
+    
+    const dispatch = useDispatch();
     const navigate = useNavigate();
 
     async function fetchPost() {
@@ -28,11 +33,24 @@ export function PostCard({ post }: PostProps) {
             setFetchedPost(postJson)
         }
     }
+    
+    async function likePost() {
+        var response = await fetch(`api/Post/like-post/${post.author.id}/${post.id}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `bearer ${token}`
+                }
+            }
+        )
 
-    useEffect(() => {
-        //fetchPost()
-    }, [])
-
+        if (response.ok) {
+            var userAndPost = await response.json()
+            
+            dispatch(setUser({ user: userAndPost.user }))
+            setFetchedPost(userAndPost.post)
+        }
+    }
 
     return (
         <div style={{  }}>
@@ -83,11 +101,17 @@ export function PostCard({ post }: PostProps) {
                     <div style={{ flex: '1 1 0%', alignItems: 'flex-start' }}>
                         <button style={{ display: 'flex', backgroundColor: '#242424', 
                             textAlign: 'center', flexDirection: 'row', justifyContent: 'center', 
-                            alignItems: 'center'
-                                }}>
-                            <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
+                            alignItems: 'center' }} onClick={likePost}>
+                            
+                            {user?.likedPosts.some(p => p.id === fetchedPost.id)
+                            ? <i style={{ fontSize: '1.3em', color: 'red' }} className="material-icons">
                                 favorite
-                            </i>
+                              </i>
+                            : <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
+                                favorite
+                              </i>
+                            }
+                            
                             <span style={{ marginLeft: '0.2em' }}> {fetchedPost.likeCount} </span>
                         </button>
                     </div>

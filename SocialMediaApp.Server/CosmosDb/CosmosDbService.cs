@@ -96,7 +96,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 return null;
         }
 
-        public async Task<UserAccount> FollowUserAsync(string userName, Author follower)
+        public async Task<object> FollowUserAsync(string userName, Author follower)
         {
             var user = await GetUserAsync(follower.Id);
 
@@ -130,7 +130,7 @@ namespace SocialMediaApp.Server.CosmosDb
             return updatedUser;
         }
 
-        public async Task<UserAccount> ConfirmFollowAsync(string userName, Author follower)
+        public async Task<object> ConfirmFollowAsync(string userName, Author follower)
         {
             var user = await GetUserByUserNameAsync(userName);
 
@@ -147,9 +147,9 @@ namespace SocialMediaApp.Server.CosmosDb
             return updatedUser;
         }
 
-        public async Task<UserAccount> FollowPatchOperation(UserAccount followee, UserAccount user)
+        public async Task<object> FollowPatchOperation(UserAccount followee, UserAccount user)
         {
-            await UserContainer.PatchItemAsync<UserAccount>(
+            var followeeResponse = await UserContainer.PatchItemAsync<UserAccount>(
                 followee.Id,
                 new PartitionKey("User"),
                 patchOperations: new[]
@@ -158,6 +158,8 @@ namespace SocialMediaApp.Server.CosmosDb
                     PatchOperation.Replace("/followRequests", followee.FollowRequests)
                 }
             );
+
+            var followeeDto = followeeResponse.Resource.ToUserDTO();
 
             var userResponse = await UserContainer.PatchItemAsync<UserAccount>(
                 user.Id,
@@ -168,7 +170,9 @@ namespace SocialMediaApp.Server.CosmosDb
                 }
             );
 
-            return userResponse.Resource;
+            var userDto = userResponse.Resource.ToUserDTO();
+
+            return new { followee = followeeDto, user = userDto };
         }
 
         public async Task<List<UserAccount>> MatchingUsersAsync(string searchTerm)

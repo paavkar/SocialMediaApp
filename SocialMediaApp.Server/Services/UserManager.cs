@@ -54,14 +54,14 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
-        public async Task<UserAccount> FollowAsync(string userName, Author follower)
+        public async Task<object> FollowAsync(string userName, Author follower)
         {
             var user = await cosmosDbUserService.FollowUserAsync(userName, follower);
 
             return user;
         }
 
-        public async Task<UserAccount> ConfirmFollowAsync(string userName, Author follower)
+        public async Task<object> ConfirmFollowAsync(string userName, Author follower)
         {
             var user = await cosmosDbUserService.ConfirmFollowAsync(userName, follower);
 

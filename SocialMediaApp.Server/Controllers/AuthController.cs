@@ -16,21 +16,7 @@ namespace SocialMediaApp.Server.Controllers
             if (user is null)
                 return BadRequest(new { Message = "Either the email or username is already taken." });
 
-            var userDto = new UserDTO()
-            {
-                Id = user.Id,
-                DisplayName = user.DisplayName,
-                UserName = user.UserName,
-                Email = user.Email,
-                LikedPosts = user.LikedPosts,
-                RepostedPosts = user.RepostedPosts,
-                Bookmarks = user.Bookmarks,
-                AccountSettings = user.AccountSettings,
-                Followers = user.Followers,
-                Following = user.Following
-            };
-
-            if (user is not null) return CreatedAtAction(nameof(Register), userDto);
+            if (user is not null) return CreatedAtAction(nameof(Register), user.ToUserDTO());
             else return BadRequest(new { Message = "There was an issue creating the account. Please try again later" });
         }
 

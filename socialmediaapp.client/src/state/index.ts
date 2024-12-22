@@ -22,11 +22,14 @@ export const authSlice = createSlice({
         setLogout: (state) => {
             state.user = null,
             state.token = null
+        },
+        setUser: (state, action) => {
+            state.user = action.payload.user
         }
     }
 })
 
 export type RootState = ReturnType<typeof authSlice.reducer>
 
-export const { setLogin, setLogout } = authSlice.actions;
+export const { setLogin, setLogout, setUser } = authSlice.actions;
 export default authSlice.reducer;

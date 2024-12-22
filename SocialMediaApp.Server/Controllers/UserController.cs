@@ -61,9 +61,7 @@ namespace SocialMediaApp.Server.Controllers
                     $" or with the id {userId}"
                 });
 
-            var userDto = updatedUser.ToUserDTO();
-
-            return Ok(new { Message = "", userDto });
+            return Ok(new { Message = "", updatedUser });
 
         }
 
@@ -90,9 +88,7 @@ namespace SocialMediaApp.Server.Controllers
                     $" or with the id {userId}"
                 });
 
-            var userDto = updatedUser.ToUserDTO();
-
-            return Ok(new { Message = "Accepted the follow request.", userDto });
+            return Ok(new { Message = "Accepted the follow request.", updatedUser });
         }
 
         [HttpGet("search-users/{searchTerm}")]
