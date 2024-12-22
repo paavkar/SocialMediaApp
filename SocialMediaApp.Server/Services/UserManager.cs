@@ -54,9 +54,9 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
-        public async Task<UserAccount> FollowAsync(string userName, Author follower, bool follow = true)
+        public async Task<UserAccount> FollowAsync(string userName, Author follower)
         {
-            var user = await cosmosDbUserService.FollowUserAsync(userName, follower, follow);
+            var user = await cosmosDbUserService.FollowUserAsync(userName, follower);
 
             return user;
         }

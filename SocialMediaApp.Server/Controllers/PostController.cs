@@ -30,7 +30,7 @@ namespace SocialMediaApp.Server.Controllers
 
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized(new { Message = "This user requires sign-in to view their profile." });
-            if (user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
+            if (user.Id != userId && user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
                 return Unauthorized(new { Message = "This user's profile is private." });
 
             var posts = await postsService.GetUserPostsAsync(user.Id);
@@ -155,6 +155,18 @@ namespace SocialMediaApp.Server.Controllers
                 return NotFound(new { Message = "No posts found with given search term." });
 
             return Ok(posts);
+        }
+
+        [HttpPatch("bookmark-post/{postId}")]
+        public async Task<IActionResult> BookmarkPost(string postId, [FromBody] string postUserId)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            var updatedUser = await postsService.BookmarkPost(postId, postUserId, userId);
+
+            return Ok(updatedUser);
         }
     }
 }

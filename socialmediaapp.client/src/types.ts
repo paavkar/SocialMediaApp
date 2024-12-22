@@ -42,6 +42,7 @@ export interface Post {
 export interface User {
     id: string;
     displayName: string;
+    description: string;
     userName: string;
     email: string;
     likedPosts: Post[];

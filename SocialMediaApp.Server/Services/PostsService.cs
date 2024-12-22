@@ -40,18 +40,13 @@ namespace SocialMediaApp.Server.Services
             return postDeleted;
         }
 
-        public async Task<object> LikePostAsync(string id, string authorId, string userId, bool unlike = false)
+        public async Task<object> LikePostAsync(string id, string authorId, string userId)
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, authorId);
 
             if (post is null) return new { Message = "There was an error trying to fetch the post." };
 
-            int likeCount;
-
-            if (!unlike) likeCount = post.LikeCount + 1;
-            else likeCount = post.LikeCount - 1;
-
-            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId, likeCount, unlike);
+            var updatedPostUser = await cosmosDbService.LikePostAsync(id, userId, authorId);
 
             return updatedPostUser;
         }
@@ -61,6 +56,13 @@ namespace SocialMediaApp.Server.Services
             var posts = await cosmosDbService.GetMatchingPostsAsync(searchTerm);
 
             return posts;
+        }
+
+        public async Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId)
+        {
+            var user = await cosmosDbService.BookmarkPost(postId, postUserId, userId);
+
+            return user;
         }
     }
 }

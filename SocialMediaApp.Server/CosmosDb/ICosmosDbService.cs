@@ -9,7 +9,7 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<UserAccount> GetByEmailAsync(string email);
         Task<UserAccount> GetUserByUserNameAsync(string userName);
         Task<UserAccount> GetUserAsync(string userId);
-        Task<UserAccount> FollowUserAsync(string userName, Author follower, bool follow = true);
+        Task<UserAccount> FollowUserAsync(string userName, Author follower);
         Task<UserAccount> ConfirmFollowAsync(string userName, Author follower);
         Task<List<UserAccount>> MatchingUsersAsync(string searchTerm);
 
@@ -22,7 +22,8 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<List<Post>> GetUserPostsAsync(string userId);
         Task<List<Post>> GetAllPostsAsync();
         Task<Post> GetPostByIdAsync(string id, string userId);
-        Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false);
+        Task<object> LikePostAsync(string id, string userId, string postUserId);
         Task<List<Post>> GetMatchingPostsAsync(string searchTerm);
+        Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId);
     }
 }

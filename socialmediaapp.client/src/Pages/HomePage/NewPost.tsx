@@ -48,6 +48,7 @@ export function NewPost() {
     }
 
 return (
+    <div>
         <form onSubmit={handleSubmit(onSubmit)}>
             <textarea 
                 {...register("text")} 
@@ -55,9 +56,14 @@ return (
                 rows={8}
                 style={{ fontSize: '17px', resize: 'none', width: '100%', padding: '0px' }} />
             <button disabled={isSubmitting} type="submit"
-                    style={{ margin: '1em 0em 0.2em 0.5em', backgroundColor: 'green' }}>
+                    style={{ margin: '1em 0em 0.2em 0.5em', backgroundColor: 'green',
+                        height: '2em', width: '4em'
+                     }}>
                 Post
             </button>
         </form>
+        <hr style={{ borderColor: 'cyan' }} />
+    </div>
+        
     )
 }

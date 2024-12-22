@@ -96,7 +96,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 return null;
         }
 
-        public async Task<UserAccount> FollowUserAsync(string userName, Author follower, bool follow = true)
+        public async Task<UserAccount> FollowUserAsync(string userName, Author follower)
         {
             var user = await GetUserAsync(follower.Id);
 
@@ -104,7 +104,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
             if (user is null || followee is null) return null;
 
-            if (follow)
+            if (!followee.Followers.Any(f => f.UserName == follower.UserName))
             {
                 if (followee.AccountSettings.IsPrivate)
                     followee.FollowRequests.Add(follower);
@@ -374,20 +374,22 @@ namespace SocialMediaApp.Server.CosmosDb
             }
         }
 
-        public async Task<object> LikePostAsync(string id, string userId, string postUserId, int likeCount, bool unlike = false)
+        public async Task<object> LikePostAsync(string id, string userId, string postUserId)
         {
             var user = await GetUserAsync(userId);
             var userLikedPosts = user.LikedPosts;
             var post = await GetPostByIdAsync(id, postUserId);
             var accountsLiked = post.AccountsLiked;
 
-            if (!unlike)
+            if (!user.LikedPosts.Any(p => p.Id == id))
             {
+                post.LikeCount++;
                 userLikedPosts.Add(post);
                 accountsLiked.Add(new Author() { Id = user.Id, UserName = user.UserName, DisplayName = user.DisplayName });
             }
             else
             {
+                post.LikeCount--;
                 userLikedPosts.RemoveAll(p => p.Id == post.Id);
                 accountsLiked.RemoveAll(a => a.Id == user.Id);
             }
@@ -397,7 +399,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 new PartitionKey($"Post-{postUserId}"),
                 patchOperations: new[]
                 {
-                    PatchOperation.Replace("/likeCount", likeCount),
+                    PatchOperation.Replace("/likeCount", post.LikeCount),
                     PatchOperation.Replace("/accountsLiked", accountsLiked)
                 }
             );
@@ -436,6 +438,41 @@ namespace SocialMediaApp.Server.CosmosDb
                 }
             }
             return matchingPosts;
+        }
+
+        public async Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId)
+        {
+            var user = await GetUserAsync(userId);
+            var post = await GetPostByIdAsync(postId, userId);
+
+            if (user.Bookmarks.Any(b => b.Id == postId))
+            {
+                user.Bookmarks.RemoveAll(b => b.Id == postId);
+            }
+            else
+            {
+                user.Bookmarks.Add(post);
+            }
+
+            var response = await UserContainer.PatchItemAsync<UserAccount>(
+                userId,
+                new PartitionKey("User"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/bookmarks", user.Bookmarks)
+                }
+            );
+
+            await PostContainer.PatchItemAsync<Post>(
+                postId,
+                new PartitionKey($"Post-{postUserId}"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/bookmarkCount", post.BookmarkCount+1)
+                }
+            );
+
+            return response.Resource;
         }
     }
 }

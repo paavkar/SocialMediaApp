@@ -40,7 +40,6 @@ namespace SocialMediaApp.Server.Controllers
         }
 
         [HttpPatch("follow-user/{userName}")]
-        [HttpPatch("unfollow-user/{userName}")]
         public async Task<IActionResult> Follow(string userName, [FromBody] Author follower)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
@@ -53,44 +52,19 @@ namespace SocialMediaApp.Server.Controllers
             if (follower.UserName == userName)
                 return BadRequest(new { Message = "You are not allowed to follow yourself." });
 
-            var user = await userManager.GetUserByIdAsync(userId);
+            var updatedUser = await userManager.FollowAsync(userName, follower);
 
-            if (HttpContext.Request.Path.Value!.Contains("unfollow-user"))
-            {
-                if (user.Following.Find(u => u.UserName == userName) is null)
-                    return BadRequest(new { Message = "You are not following this user." });
+            if (updatedUser is null)
+                return NotFound(new
+                {
+                    Message = $"Couldn't find a user with the username {userName}" +
+                    $" or with the id {userId}"
+                });
 
-                var updatedUser = await userManager.FollowAsync(userName, follower, false);
+            var userDto = updatedUser.ToUserDTO();
 
-                if (updatedUser is null)
-                    return NotFound(new
-                    {
-                        Message = $"Couldn't find a user with the username {userName}" +
-                        $" or with the id {userId}"
-                    });
+            return Ok(new { Message = "", userDto });
 
-                var userDto = updatedUser.ToUserDTO();
-
-                return Ok(new { Message = "User unfollowed successfully.", userDto });
-            }
-            else
-            {
-                if (user.Following.Find(u => u.UserName == userName) is not null)
-                    return BadRequest(new { Message = "You are already following this user." });
-
-                var updatedUser = await userManager.FollowAsync(userName, follower);
-
-                if (updatedUser is null)
-                    return NotFound(new
-                    {
-                        Message = $"Couldn't find a user with the username {userName}" +
-                        $" or with the id {userId}"
-                    });
-
-                var userDto = updatedUser.ToUserDTO();
-
-                return Ok(new { Message = "User followed successfully", userDto });
-            }
         }
 
         [HttpPatch("confirm-follow/{userName}")]
