@@ -21,19 +21,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
 
     return (
-        <div style={{ display:' flex', flexDirection: 'row', marginLeft: "15vw" }}>
-            <nav style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                width: '20vw', fontSize: "1.5em", paddingTop: '1em', borderRight: "1px solid cyan" }}>
+        <div style={{ display:' flex', flexDirection: 'row', justifyContent: 'center' }}>
+            <nav style={{ display: 'flex', alignItems:'center', flexDirection: 'column', 
+                width: '20vw', fontSize: '1.5em', paddingTop: '1em', borderRight: '1px solid cyan' }}>
                 <NavLink to={`/${user?.userName}`}>Profile</NavLink>
                 <NavLink to={"/"}>Home</NavLink>
                 <NavLink to={""} onClick={logOut}>Logout</NavLink>
             </nav>
 
-            <div style={{ display:' flex', flexDirection: 'column', width: '30vw', paddingTop: '1em' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', width: '30vw', paddingTop: '1em' }}>
                 {children}
             </div>
-            <div style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                        width: '20vw', paddingTop: '1em', borderLeft: "1px solid cyan" }}>
+            <div style={{ display: 'flex', alignItems:'center', flexDirection: 'column', 
+                        width: '20vw', paddingTop: '1em', borderLeft: '1px solid cyan' }}>
 
             </div>
         </div>

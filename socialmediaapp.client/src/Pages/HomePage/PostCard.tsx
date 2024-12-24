@@ -41,35 +41,54 @@ export function PostCard({ post }: PostProps) {
         const postDate = new Date(post.createdAt)
         const timeDifference = currentDate.getTime() - postDate.getTime()
         const seconds = timeDifference/1000
+        let timeString = ""
 
         let interval = seconds / 31536000; 
-        if (interval > 1) { 
-            return `${Math.floor(interval)} years ago`; 
+        if (interval > 1) {
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} years ago`
+            : timeString = `${Math.floor(interval)} year ago`
+            return timeString
         } 
 
         interval = seconds / 2592000; 
         if (interval > 1) { 
-            return `${Math.floor(interval)} months ago`; 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} months ago`
+            : timeString = `${Math.floor(interval)} month ago`
+            return timeString
         } 
 
         interval = seconds / 604800; 
-        if (interval > 1) { 
-            return `${Math.floor(interval)} weeks ago`; 
+        if (interval > 1) {
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} weeks ago`
+            : timeString = `${Math.floor(interval)} week ago`
+            return timeString
         } 
 
         interval = seconds / 86400; 
         if (interval > 1) { 
-            return `${Math.floor(interval)} days ago`; 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} days ago`
+            : timeString = `${Math.floor(interval)} day ago`
+            return timeString
         } 
 
         interval = seconds / 3600; 
-        if (interval > 1) { 
-            return `${Math.floor(interval)} hours ago`; 
+        if (interval > 1) {
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} hours ago`
+            : timeString = `${Math.floor(interval)} hour ago`
+            return timeString
         } 
 
         interval = seconds / 60; 
         if (interval > 1) { 
-            return `${Math.floor(interval)} minutes ago`; 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} minutes ago`
+            : timeString = `${Math.floor(interval)} minute ago`
+            return timeString
         } 
 
         return `${Math.floor(seconds)} seconds ago`
