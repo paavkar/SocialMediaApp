@@ -28,12 +28,6 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "accountsReposted")]
         public List<Author> AccountsReposted { get; set; } = [];
 
-        [JsonProperty(PropertyName = "quotes")]
-        public List<Post> Quotes { get; set; } = [];
-
-        [JsonProperty(PropertyName = "replies")]
-        public List<Post> Replies { get; set; } = [];
-
         [JsonProperty(PropertyName = "createdAt")]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
@@ -63,5 +57,30 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
+
+        public PostDTO ToPostDTO(UserAccount author)
+        {
+            return new PostDTO
+            {
+                Id = this.Id,
+                Text = this.Text,
+                LikeCount = this.LikeCount,
+                RepostCount = this.RepostCount,
+                QuoteCount = this.QuoteCount,
+                ReplyCount = this.ReplyCount,
+                AccountsLiked = this.AccountsLiked,
+                AccountsReposted = this.AccountsReposted,
+                CreatedAt = this.CreatedAt,
+                Author = author.ToAuthorDTO(),
+                Labels = this.Labels,
+                Langs = this.Langs,
+                QuotedPost = this.QuotedPost,
+                ParentPost = this.ParentPost,
+                PreviousVersions = this.PreviousVersions,
+                BookmarkCount = this.BookmarkCount,
+                IsPinned = this.IsPinned,
+                PartitionKey = this.PartitionKey
+            };
+        }
     }
 }

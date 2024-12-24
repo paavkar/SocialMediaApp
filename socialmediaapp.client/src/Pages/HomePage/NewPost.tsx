@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Author } from "../../types";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 
 const Schema = z.object({
     text: z.string().min(1),
@@ -25,6 +25,7 @@ export function NewPost() {
                 author: {
                     id: user?.id,
                     displayName: user?.displayName,
+                    description: user?.description,
                     userName: user?.userName,
                 },
                 langs: ["en"],
@@ -48,14 +49,14 @@ export function NewPost() {
     }
 
 return (
-    <div>
+    <div style={{  }}>
         <form onSubmit={handleSubmit(onSubmit)}>
             <textarea 
                 {...register("text")} 
-                placeholder="What's happening?"
+                placeholder=" What's happening?"
                 rows={8}
                 style={{ fontSize: '17px', resize: 'none', width: '100%', padding: '0px',
-                    backgroundColor: '#242424'
+                    backgroundColor: '#242424', border: "0px"
                  }} />
             <button disabled={isSubmitting} type="submit"
                     style={{ margin: '1em 0em 0.2em 0.5em', backgroundColor: 'green',

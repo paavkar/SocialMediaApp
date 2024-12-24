@@ -267,27 +267,63 @@ namespace SocialMediaApp.Server.CosmosDb
             else return null;
         }
 
-        public async Task<List<Post>> GetAllPostsAsync()
+        public async Task<List<PostDTO>> GetAllPostsAsync()
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts");
+                ("SELECT * FROM Posts p ORDER BY p.createdAt DESC");
 
+            var posts = await GetPostsAsync(parameterizedQuery);
+
+            foreach (var post in posts)
+            {
+                var quotedPosts = await GetPostQuotesAsync(post.Id);
+                post.Quotes = quotedPosts;
+                var postReplies = await GetPostRepliesAsync(post.Id);
+                post.Replies = postReplies;
+            }
+
+            return posts;
+        }
+
+        public async Task<List<PostDTO>> GetPostQuotesAsync(string postId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.quotedPost.id = @PostId ORDER BY p.createdAt DESC")
+                .WithParameter("@PostId", postId);
+
+            var posts = await GetPostsAsync(parameterizedQuery);
+
+            return posts;
+        }
+
+        public async Task<List<PostDTO>> GetPostRepliesAsync(string postId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.parentPost.id = @PostId ORDER BY p.createdAt DESC")
+                .WithParameter("@PostId", postId);
+
+            var posts = await GetPostsAsync(parameterizedQuery);
+
+            return posts;
+        }
+
+        public async Task<List<PostDTO>> GetPostsAsync(QueryDefinition parameterizedQuery)
+        {
             using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
 
-            List<Post> allPosts = [];
+            List<PostDTO> posts = [];
 
             while (feedIterator.HasMoreResults)
             {
-                //FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
-
                 foreach (Post post in await feedIterator.ReadNextAsync())
                 {
-                    allPosts.Add(post);
+                    var author = await GetUserAsync(post.Author.Id);
+                    var postDto = post.ToPostDTO(author);
+                    posts.Add(postDto);
                 }
             }
-
-            return allPosts;
+            return posts;
         }
 
         public async Task<List<Post>> GetUserPostsAsync(string userId)
@@ -381,30 +417,28 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<object> LikePostAsync(string id, string userId, string postUserId)
         {
             var user = await GetUserAsync(userId);
-            var userLikedPosts = user.LikedPosts;
             var post = await GetPostByIdAsync(id, postUserId);
-            var accountsLiked = post.AccountsLiked;
 
             if (!user.LikedPosts.Any(p => p.Id == id))
             {
                 post.LikeCount++;
-                userLikedPosts.Add(post);
-                accountsLiked.Add(new Author() { Id = user.Id, UserName = user.UserName, DisplayName = user.DisplayName });
+                user.LikedPosts.Add(post);
+                post.AccountsLiked.Add(new Author() { Id = user.Id, UserName = user.UserName, DisplayName = user.DisplayName, Description = user.Description });
             }
             else
             {
                 post.LikeCount--;
-                userLikedPosts.RemoveAll(p => p.Id == post.Id);
-                accountsLiked.RemoveAll(a => a.Id == user.Id);
+                user.LikedPosts.RemoveAll(p => p.Id == post.Id);
+                post.AccountsLiked.RemoveAll(a => a.Id == user.Id);
             }
 
             var response = await PostContainer.PatchItemAsync<Post>(
                 id,
-                new PartitionKey($"Post-{postUserId}"),
+                new PartitionKey(post.PartitionKey),
                 patchOperations: new[]
                 {
                     PatchOperation.Replace("/likeCount", post.LikeCount),
-                    PatchOperation.Replace("/accountsLiked", accountsLiked)
+                    PatchOperation.Replace("/accountsLiked", post.AccountsLiked)
                 }
             );
 
@@ -413,11 +447,17 @@ namespace SocialMediaApp.Server.CosmosDb
                 new PartitionKey($"User"),
                 patchOperations: new[]
                 {
-                    PatchOperation.Replace("/likedPosts", userLikedPosts)
+                    PatchOperation.Replace("/likedPosts", user.LikedPosts)
                 }
             );
 
             var userDto = userResponse.Resource.ToUserDTO();
+
+            foreach (var likedPost in user.LikedPosts)
+            {
+                var author = await GetUserAsync(likedPost.Author.Id);
+                userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
+            }
 
             return new { post = response.Resource, user = userDto };
         }

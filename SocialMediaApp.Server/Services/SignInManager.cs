@@ -18,7 +18,15 @@ namespace SocialMediaApp.Server.Services
 
                 var token = await CreateToken(user, userRole);
 
-                return new { User = user.ToUserDTO(), Token = token };
+                var userDto = user.ToUserDTO();
+
+                foreach (var likedPost in user.LikedPosts)
+                {
+                    var author = await userManager.GetUserByIdAsync(likedPost.Author.Id);
+                    userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
+                }
+
+                return new { User = userDto, Token = token };
             }
             else return null;
         }

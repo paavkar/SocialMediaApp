@@ -20,7 +20,9 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<Post> CreatePostAsync(Post post);
         Task<bool> DeletePostAsync(string postId, string userId);
         Task<List<Post>> GetUserPostsAsync(string userId);
-        Task<List<Post>> GetAllPostsAsync();
+        Task<List<PostDTO>> GetAllPostsAsync();
+        Task<List<PostDTO>> GetPostQuotesAsync(string postId);
+        Task<List<PostDTO>> GetPostRepliesAsync(string postId);
         Task<Post> GetPostByIdAsync(string id, string userId);
         Task<object> LikePostAsync(string id, string userId, string postUserId);
         Task<List<Post>> GetMatchingPostsAsync(string searchTerm);

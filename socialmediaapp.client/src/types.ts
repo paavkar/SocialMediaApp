@@ -6,7 +6,10 @@ export interface AccountSettings {
 export interface Author {
     id: string;
     displayName: string;
+    description: string;
     userName: string;
+    followers?: Author[];
+    following?: Author[];
 }
 
 export interface LoginDTO {
@@ -49,8 +52,8 @@ export interface User {
     repostedPosts: Post[];
     bookmarks: Post[];
     accountSettings: AccountSettings;
-    following: Author[];
-    followers: Author[];
+    following?: Author[];
+    followers?: Author[];
     followRequests: Author[];
 }
 

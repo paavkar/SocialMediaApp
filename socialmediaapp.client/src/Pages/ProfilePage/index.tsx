@@ -1,19 +1,22 @@
-import { useParams } from "react-router"
+import { useParams } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, setUser } from "../../state";
 import { useEffect, useState } from "react";
 import { User, Post, Author } from "../../types";
 import Layout from "../layout";
 import { PostCard } from "../HomePage/PostCard";
+import { useNavigate } from "react-router";
 
 export function ProfilePage() {
     const { userName } = useParams()
     const dispatch = useDispatch()
+    const navigate = useNavigate()
     const token = useSelector<RootState, string | null>((state) => state.token);
     const loggedInUser = useSelector<RootState, User | null>((state) => state.user);
     const [user, setDisplayedUser] = useState<User>()
     const [userPosts, setUserPosts] = useState<Post[]>()
     const [activeTab, setActiveTab] = useState("")
+    const isAuth = Boolean(useSelector<RootState>((state) => state.token));
 
     async function fetchUser() {
         var response = await fetch(`api/User/${userName}`, {
@@ -75,9 +78,14 @@ export function ProfilePage() {
     }
 
     useEffect(() => {
-        fetchUser()
-        fetchUserPosts()
-        setActiveTab("posts")
+        if (isAuth) {
+            fetchUser()
+            fetchUserPosts()
+            setActiveTab("posts")
+        }
+        else {
+            navigate("/")
+        }
     }, [])
 
     return (
@@ -100,8 +108,8 @@ export function ProfilePage() {
                                 </button>
                             : <button style={{ height: '2.5em', width: '5em', marginRight: '1em', 
                                 backgroundColor: 'green' }} onClick={followUser}>
-                                    {loggedInUser!.following.some(u => u.userName === userName)
-                                    ? <span>Unfollow</span>
+                                    {loggedInUser!.following!.some(u => u.userName === userName)
+                                    ? <span>Following</span>
                                     : <span>Follow</span>
                                     }
                                 </button>
@@ -110,11 +118,11 @@ export function ProfilePage() {
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
-                            {user?.followers.length}
+                            {user?.followers!.length}
                         </span>
                         <span style={{ marginLeft: '0.2em', fontSize: '1.1em' }}>followers</span>
                         <span style={{ marginLeft: '0.4em', fontWeight: 'bold', fontSize: '1.1em' }}>
-                            {user?.following.length}
+                            {user?.following!.length}
                         </span>
                         <span style={{ marginLeft: '0.2em', fontSize: '1.1em' }}>following</span>
                         <span style={{ marginLeft: '0.4em', fontWeight: 'bold', fontSize: '1.1em' }}>
@@ -159,16 +167,25 @@ export function ProfilePage() {
                 </div>
                 
                 {activeTab == "posts"
-                ? <div>
+                ? <div style={{ marginRight: "1em"}}>
                     {userPosts?.map((post) => {
                         return (
                             <PostCard post={post} />
                         )
                     })}
+                    
+                    <div style={{ display:'flex', justifyContent: 'center', marginTop: "1em" }}>
+                        <span style={{ fontSize: '0.9em' }}>End of feed</span>
+                    </div>
                     </div>
                 : activeTab == "likes"
-                ? <div>
-                    {user?.likedPosts.map((post) => {
+                ? <div style={{ marginRight: "1em"}}>
+                    
+                    {user!.likedPosts.length === 0
+                    ? <span style={{ display:'flex', justifyContent: 'center', marginTop: "1em" }}>
+                        {user!.displayName} has no likes
+                        </span>
+                    : user!.likedPosts.map((post) => {
                         return (
                             <PostCard post={post} />
                         )
@@ -176,9 +193,6 @@ export function ProfilePage() {
                     </div>
                 : null
                 }
-                <div style={{ display:'flex', justifyContent: 'center' }}>
-                    <span style={{ fontSize: '0.9em' }}>End of feed</span>
-                </div>
             </div> 
         </Layout>
     )

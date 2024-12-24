@@ -1,9 +1,10 @@
 import React from 'react';
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setLogout, RootState } from "../state";
 import {  User } from "../types";
+import { useNavigate } from "react-router";
 
 type LayoutProps = {
     children: React.ReactNode;
@@ -12,23 +13,27 @@ type LayoutProps = {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
     const user = useSelector<RootState, User | null>((state) => state.user);
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    function logOut() {
+        dispatch(setLogout())
+        navigate("/")
+    }
+
     return (
-        <div style={{ display:' flex', flexDirection: 'row', width: '90vw', marginLeft: '5em' }}>
+        <div style={{ display:' flex', flexDirection: 'row', marginLeft: "15vw" }}>
             <nav style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                width: '20vw', fontSize: "1.5em", marginTop: '1em' }}>
+                width: '20vw', fontSize: "1.5em", paddingTop: '1em', borderRight: "1px solid cyan" }}>
                 <NavLink to={`/${user?.userName}`}>Profile</NavLink>
                 <NavLink to={"/"}>Home</NavLink>
-                <NavLink to={""} onClick={() => dispatch(setLogout())}>Logout</NavLink>
+                <NavLink to={""} onClick={logOut}>Logout</NavLink>
             </nav>
-            <div style={{ borderLeft: '1px solid cyan', height: '100vh' }}></div>
 
-            <div style={{ display:' flex', flexDirection: 'column', width: '50vw', marginTop: '1em' }}>
+            <div style={{ display:' flex', flexDirection: 'column', width: '30vw', paddingTop: '1em' }}>
                 {children}
             </div>
-            
-            <div style={{ borderLeft: '1px solid cyan', height: '100vh' }}></div>
             <div style={{ display:' flex', alignItems:'center', flexDirection: 'column', 
-                        width: '20vw', marginTop: '1em' }}>
+                        width: '20vw', paddingTop: '1em', borderLeft: "1px solid cyan" }}>
 
             </div>
         </div>

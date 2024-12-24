@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form"
-import { NavLink } from "react-router"
+import { NavLink } from "react-router-dom"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState } from "react"

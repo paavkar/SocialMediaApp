@@ -5,7 +5,7 @@ namespace SocialMediaApp.Server.Services
 {
     public class PostsService(ICosmosDbService cosmosDbService)
     {
-        public async Task<List<Post>> GetAllPostsAsync()
+        public async Task<List<PostDTO>> GetAllPostsAsync()
         {
             var posts = await cosmosDbService.GetAllPostsAsync();
 
@@ -19,11 +19,20 @@ namespace SocialMediaApp.Server.Services
             return posts;
         }
 
-        public async Task<Post> GetPostByIdAsync(string id, string userId)
+        public async Task<PostDTO> GetPostByIdAsync(string id, string userId)
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, userId);
 
-            return post;
+            var author = await cosmosDbService.GetUserAsync(post.Author.Id);
+            var postDto = post.ToPostDTO(author);
+
+            var quotedPosts = await cosmosDbService.GetPostQuotesAsync(post.Id);
+            postDto.Quotes = quotedPosts;
+
+            var postReplies = await cosmosDbService.GetPostRepliesAsync(post.Id);
+            postDto.Replies = postReplies;
+
+            return postDto;
         }
 
         public async Task<Post> CreatePostAsync(Post post)
@@ -58,11 +67,19 @@ namespace SocialMediaApp.Server.Services
             return posts;
         }
 
-        public async Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId)
+        public async Task<UserDTO> BookmarkPost(string postId, string postUserId, string userId)
         {
             var user = await cosmosDbService.BookmarkPost(postId, postUserId, userId);
 
-            return user;
+            var userDto = user.ToUserDTO();
+
+            foreach (var bookmark in user.Bookmarks)
+            {
+                var author = await cosmosDbService.GetUserAsync(bookmark.Author.Id);
+                userDto.Bookmarks.Add(bookmark.ToPostDTO(author));
+            }
+
+            return userDto;
         }
     }
 }

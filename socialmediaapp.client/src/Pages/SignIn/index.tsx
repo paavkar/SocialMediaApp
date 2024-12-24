@@ -1,4 +1,4 @@
-import { NavLink } from "react-router";
+import { NavLink } from "react-router-dom";
 import {z} from "zod";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -103,7 +103,7 @@ export default function SignIn() {
 
                 <div style={{ display:'flex', flexDirection: 'column', marginTop: '1em' }}>
                     <span>Don't have an account?</span>
-                <NavLink to="/register"> Click here to register.</NavLink> 
+                    <NavLink to="/register"> Click here to register.</NavLink> 
                 </div>
             </form>
         </div>

@@ -36,6 +36,12 @@ namespace SocialMediaApp.Server.Controllers
 
             var userDto = user.ToUserDTO();
 
+            foreach (var likedPost in user.LikedPosts)
+            {
+                var author = await userManager.GetUserByIdAsync(likedPost.Author.Id);
+                userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
+            }
+
             return Ok(userDto);
         }
 

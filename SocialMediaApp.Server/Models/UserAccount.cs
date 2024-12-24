@@ -58,13 +58,24 @@ namespace SocialMediaApp.Server.Models
                 Description = this.Description,
                 UserName = this.UserName,
                 Email = this.Email,
-                LikedPosts = this.LikedPosts,
                 RepostedPosts = this.RepostedPosts,
-                Bookmarks = this.Bookmarks,
                 AccountSettings = this.AccountSettings,
                 Following = this.Following,
                 Followers = this.Followers,
                 FollowRequests = this.FollowRequests
+            };
+        }
+
+        public AuthorDTO ToAuthorDTO()
+        {
+            return new AuthorDTO
+            {
+                Id = this.Id,
+                DisplayName = this.DisplayName,
+                Description = this.Description,
+                UserName = this.UserName,
+                Followers = this.Followers,
+                Following = this.Following
             };
         }
     }
