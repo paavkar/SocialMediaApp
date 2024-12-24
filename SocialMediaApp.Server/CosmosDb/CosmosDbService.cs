@@ -12,7 +12,7 @@ namespace SocialMediaApp.Server.CosmosDb
         private Container RoleAccountContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "LinkedRoles");
         private Container PostContainer => cosmosDbFactory.CosmosClient.GetContainer(cosmosDbFactory.DatabaseName, "Posts");
 
-        public async Task<UserAccount> GetUserAsync(string userId)
+        public async Task<UserAccount> GetUserByIdAsync(string userId)
         {
             var userResponse = await UserContainer.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
 
@@ -98,7 +98,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<object> FollowUserAsync(string userName, Author follower)
         {
-            var user = await GetUserAsync(follower.Id);
+            var user = await GetUserByIdAsync(follower.Id);
 
             var followee = await GetUserByUserNameAsync(userName);
 
@@ -181,20 +181,139 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM UserAccounts ua WHERE CONTAINS(LOWER(ua.userName), @SearchTerm) OR CONTAINS(LOWER(ua.displayName), @SearchTerm)")
                 .WithParameter("@SearchTerm", searchTerm.ToLower());
 
-            using FeedIterator<UserAccount> feedIterator = UserContainer.GetItemQueryIterator<UserAccount>(
-                queryDefinition: parameterizedQuery);
+            var users = await GetUsersFromFeedIterator(parameterizedQuery);
 
-            List<UserAccount> matchingUsers = [];
+            return users;
+        }
 
-            while (feedIterator.HasMoreResults)
+        public async Task<List<UserAccount>> GetFollowingOrFollowerUsersAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM UserAccounts ua WHERE ARRAY_CONTAINS(ua.followers, { 'id': @UserId }, true) OR ARRAY_CONTAINS(ua.following, { 'id': @UserId }, true)")
+                .WithParameter("@UserId", userId);
+
+            var users = await GetUsersFromFeedIterator(parameterizedQuery);
+
+            return users;
+        }
+
+        public async Task<List<UserAccount>> GetBookmarkedPostsAuthorsUsersAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM UserAccounts ua WHERE ARRAY_CONTAINS(ua.bookmarks, { 'author.id': @UserId }, true)")
+                .WithParameter("@UserId", userId);
+
+            var users = await GetUsersFromFeedIterator(parameterizedQuery);
+
+            return users;
+        }
+
+        public async Task<List<UserAccount>> GetUsersFromFeedIterator(QueryDefinition parameterizedQuery)
+        {
+            try
             {
-                FeedResponse<UserAccount> users = await feedIterator.ReadNextAsync();
-                foreach (var user in users)
+                using FeedIterator<UserAccount> feedIterator = UserContainer.GetItemQueryIterator<UserAccount>(
+                    queryDefinition: parameterizedQuery);
+
+                List<UserAccount> matchingUsers = [];
+
+                while (feedIterator.HasMoreResults)
                 {
-                    matchingUsers.Add(user);
+                    FeedResponse<UserAccount> users = await feedIterator.ReadNextAsync();
+                    foreach (var user in users)
+                    {
+                        matchingUsers.Add(user);
+                    }
                 }
+                return matchingUsers;
             }
-            return matchingUsers;
+            catch (Exception)
+            {
+                return [];
+            }
+        }
+
+        public async Task<List<Post>> GetPostsWithCertainAuthorAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.author.id = @UserId")
+                .WithParameter("@UserId", userId);
+
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
+
+            return posts;
+        }
+
+        public async Task<List<Post>> GetQuotesWithCertainQuotedAuthorAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.quotedPost.author.id = @UserId")
+                .WithParameter("@UserId", userId);
+
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
+
+            return posts;
+        }
+
+        public async Task<List<Post>> GetRepliesWithCertainParentAuthorAsync(string userId)
+        {
+            var parameterizedQuery = new QueryDefinition
+                ("SELECT * FROM Posts p WHERE p.parentPost.author.id = @UserId")
+                .WithParameter("@UserId", userId);
+
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
+
+            return posts;
+        }
+
+        public async Task<List<Post>> GetPostsFromFeedIteratorAsync(QueryDefinition parameterizedQuery)
+        {
+            try
+            {
+                using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
+                                queryDefinition: parameterizedQuery);
+
+                List<Post> matchingPosts = [];
+
+                while (feedIterator.HasMoreResults)
+                {
+                    FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
+                    foreach (var post in posts)
+                    {
+                        matchingPosts.Add(post);
+                    }
+                }
+                return matchingPosts;
+            }
+            catch (Exception)
+            {
+                return [];
+            }
+        }
+
+        public async Task<UserAccount> UpdateUserAsync(Author user)
+        {
+            try
+            {
+                var response = await UserContainer.PatchItemAsync<UserAccount>(
+                    user.Id,
+                    new PartitionKey("User"),
+                    patchOperations: new[]
+                    {
+                        PatchOperation.Replace("/description", user.Description),
+                        PatchOperation.Replace("/displayName", user.DisplayName),
+                        PatchOperation.Replace("/userName", user.UserName),
+                        PatchOperation.Replace("/changeFeed", true)
+                    });
+
+                return response.Resource;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
         public async Task<AccountRole> AddRoleAsync(string roleName)
@@ -318,7 +437,7 @@ namespace SocialMediaApp.Server.CosmosDb
             {
                 foreach (Post post in await feedIterator.ReadNextAsync())
                 {
-                    var author = await GetUserAsync(post.Author.Id);
+                    var author = await GetUserByIdAsync(post.Author.Id);
                     var postDto = post.ToPostDTO(author);
                     posts.Add(postDto);
                 }
@@ -352,6 +471,13 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<Post> CreatePostAsync(Post post)
         {
+            post.Id ??= Guid.CreateVersion7().ToString();
+            post.CreatedAt = DateTimeOffset.UtcNow;
+            post.AccountsLiked = [];
+            post.AccountsReposted = [];
+            post.QuotedPost ??= new();
+            post.ParentPost ??= new();
+            post.PreviousVersions ??= [];
             var response = await PostContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
 
             return response.Resource;
@@ -416,7 +542,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<object> LikePostAsync(string id, string userId, string postUserId)
         {
-            var user = await GetUserAsync(userId);
+            var user = await GetUserByIdAsync(userId);
             var post = await GetPostByIdAsync(id, postUserId);
 
             if (!user.LikedPosts.Any(p => p.Id == id))
@@ -455,7 +581,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
             foreach (var likedPost in user.LikedPosts)
             {
-                var author = await GetUserAsync(likedPost.Author.Id);
+                var author = await GetUserByIdAsync(likedPost.Author.Id);
                 userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
             }
 
@@ -486,7 +612,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
         public async Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId)
         {
-            var user = await GetUserAsync(userId);
+            var user = await GetUserByIdAsync(userId);
             var post = await GetPostByIdAsync(postId, userId);
 
             if (user.Bookmarks.Any(b => b.Id == postId))

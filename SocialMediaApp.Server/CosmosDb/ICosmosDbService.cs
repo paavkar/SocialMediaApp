@@ -8,10 +8,11 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<UserAccount> GetUserByEmailOrUserNameAsync(string emailOrUserName);
         Task<UserAccount> GetByEmailAsync(string email);
         Task<UserAccount> GetUserByUserNameAsync(string userName);
-        Task<UserAccount> GetUserAsync(string userId);
+        Task<UserAccount> GetUserByIdAsync(string userId);
         Task<object> FollowUserAsync(string userName, Author follower);
         Task<object> ConfirmFollowAsync(string userName, Author follower);
         Task<List<UserAccount>> MatchingUsersAsync(string searchTerm);
+        Task<UserAccount> UpdateUserAsync(Author user);
 
         Task<AccountRole> GetRoleByNameAsync(string roleName);
         Task<AccountRole> AddRoleAsync(string roleName);

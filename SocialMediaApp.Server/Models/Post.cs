@@ -5,7 +5,7 @@ namespace SocialMediaApp.Server.Models
     public class Post
     {
         [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; } = Guid.CreateVersion7().ToString();
+        public string Id { get; set; }
 
         [JsonProperty(PropertyName = "text")]
         public string Text { get; set; }
@@ -23,22 +23,22 @@ namespace SocialMediaApp.Server.Models
         public int ReplyCount { get; set; }
 
         [JsonProperty(PropertyName = "accountsLiked")]
-        public List<Author> AccountsLiked { get; set; } = [];
+        public List<Author> AccountsLiked { get; set; }
 
         [JsonProperty(PropertyName = "accountsReposted")]
-        public List<Author> AccountsReposted { get; set; } = [];
+        public List<Author> AccountsReposted { get; set; }
 
         [JsonProperty(PropertyName = "createdAt")]
-        public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; set; }
 
         [JsonProperty(PropertyName = "author")]
         public Author Author { get; set; }
 
         [JsonProperty(PropertyName = "labels")]
-        public List<string> Labels { get; set; } = [];
+        public List<string> Labels { get; set; }
 
         [JsonProperty(PropertyName = "langs")]
-        public List<string> Langs { get; set; } = [];
+        public List<string> Langs { get; set; }
 
         [JsonProperty(PropertyName = "quotedPost")]
         public Post? QuotedPost { get; set; }
@@ -57,6 +57,9 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
+
+        [JsonProperty(PropertyName = "type")]
+        public string? Type { get; set; } = "Post";
 
         public PostDTO ToPostDTO(UserAccount author)
         {

@@ -49,6 +49,9 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "type")]
         public string Type { get; set; } = "UserAccount";
 
+        [JsonProperty(PropertyName = "changeFeed")]
+        public bool ChangeFeed { get; set; } = false;
+
         public UserDTO ToUserDTO()
         {
             return new UserDTO

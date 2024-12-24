@@ -4,7 +4,7 @@ using SocialMediaApp.Server.Models;
 
 namespace SocialMediaApp.Server.Services
 {
-    public class UserManager(ICosmosDbService cosmosDbUserService, RoleManager roleManager)
+    public class UserManager(ICosmosDbService cosmosDbService, RoleManager roleManager)
     {
         public async Task<UserAccount> CreateUserAsync(RegisterDTO registerDTO)
         {
@@ -21,58 +21,65 @@ namespace SocialMediaApp.Server.Services
                 Email = registerDTO.Email,
                 PasswordHash = passwordHash
             };
-            var user = await cosmosDbUserService.AddAsync(account);
+            var user = await cosmosDbService.AddAsync(account);
 
             return user;
         }
 
         public async Task<UserAccount> GetUserByIdAsync(string userId)
         {
-            var user = await cosmosDbUserService.GetUserAsync(userId);
+            var user = await cosmosDbService.GetUserByIdAsync(userId);
 
             return user;
         }
 
         public async Task<UserAccount> GetUserByEmailOrUserNameAsync(string emailOrUserName)
         {
-            var user = await cosmosDbUserService.GetUserByEmailOrUserNameAsync(emailOrUserName);
+            var user = await cosmosDbService.GetUserByEmailOrUserNameAsync(emailOrUserName);
 
             return user;
         }
 
         public async Task<UserAccount> GetUserByEmailAsync(string email)
         {
-            var user = await cosmosDbUserService.GetByEmailAsync(email);
+            var user = await cosmosDbService.GetByEmailAsync(email);
 
             return user;
         }
 
         public async Task<UserAccount> GetUserByUserNameAsync(string userName)
         {
-            var user = await cosmosDbUserService.GetUserByUserNameAsync(userName);
+            var user = await cosmosDbService.GetUserByUserNameAsync(userName);
 
             return user;
         }
 
         public async Task<object> FollowAsync(string userName, Author follower)
         {
-            var user = await cosmosDbUserService.FollowUserAsync(userName, follower);
+            var user = await cosmosDbService.FollowUserAsync(userName, follower);
 
             return user;
         }
 
         public async Task<object> ConfirmFollowAsync(string userName, Author follower)
         {
-            var user = await cosmosDbUserService.ConfirmFollowAsync(userName, follower);
+            var user = await cosmosDbService.ConfirmFollowAsync(userName, follower);
 
             return user;
         }
 
         public async Task<List<UserAccount>> MatchingUsersAsync(string searchTerm)
         {
-            var users = await cosmosDbUserService.MatchingUsersAsync(searchTerm);
+            var users = await cosmosDbService.MatchingUsersAsync(searchTerm);
 
             return users;
+        }
+
+        public async Task<UserAccount> UpdateUserAsync(Author user)
+        {
+            var updatedUser = await cosmosDbService.UpdateUserAsync(user);
+
+            return updatedUser;
         }
 
         public string HashPassword(string password)

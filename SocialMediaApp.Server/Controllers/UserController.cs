@@ -113,5 +113,25 @@ namespace SocialMediaApp.Server.Controllers
 
             return Ok(userDtos);
         }
+
+        [HttpPatch("update-user/{userId}")]
+        public async Task<IActionResult> UpdateUser(string userId, [FromBody] Author user)
+        {
+            string tokenUserId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(tokenUserId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+            if (userId != tokenUserId)
+                return Unauthorized(new { Message = "Token ID does not match user ID." });
+            if (user is null)
+                return BadRequest(new { Message = "No user provided." });
+
+            var updatedUser = await userManager.UpdateUserAsync(user);
+
+            if (updatedUser is null)
+                return NotFound(new { Message = "No user found with given ID." });
+
+            return Ok(updatedUser);
+        }
     }
 }

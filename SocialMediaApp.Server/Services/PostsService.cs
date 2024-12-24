@@ -23,7 +23,7 @@ namespace SocialMediaApp.Server.Services
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, userId);
 
-            var author = await cosmosDbService.GetUserAsync(post.Author.Id);
+            var author = await cosmosDbService.GetUserByIdAsync(post.Author.Id);
             var postDto = post.ToPostDTO(author);
 
             var quotedPosts = await cosmosDbService.GetPostQuotesAsync(post.Id);
@@ -75,7 +75,7 @@ namespace SocialMediaApp.Server.Services
 
             foreach (var bookmark in user.Bookmarks)
             {
-                var author = await cosmosDbService.GetUserAsync(bookmark.Author.Id);
+                var author = await cosmosDbService.GetUserByIdAsync(bookmark.Author.Id);
                 userDto.Bookmarks.Add(bookmark.ToPostDTO(author));
             }
 
