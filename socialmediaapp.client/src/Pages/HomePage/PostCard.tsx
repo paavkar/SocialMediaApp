@@ -10,7 +10,7 @@ type PostProps = {
     post: Post;
 }
 
-export function PostCard({ post }: PostProps) {
+export const PostCard = ({ post }: PostProps) => {
     const [currentDate, _setCurrentDate] = useState<Date>(new Date())
     const [uPost, setUPost] = useState(post)
     const token = useSelector<RootState, string | null>((state) => state.token);
@@ -20,7 +20,7 @@ export function PostCard({ post }: PostProps) {
     const navigate = useNavigate();
     
     async function likePost() {
-        var response = await fetch(`api/Post/like-post/${post.author.id}/${post.id}`, {
+        var response = await fetch(`/api/Post/like-post/${post.author.id}/${post.id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -95,7 +95,7 @@ export function PostCard({ post }: PostProps) {
     }
 
     return (
-        <div key={post.id} style={{ display: "flex", flexDirection: "row", width: '100%', 
+        <div key={uPost.id} style={{ display: "flex", flexDirection: "row", width: '100%', 
             height: 'auto', borderBottom: "1px solid cyan", padding: "1em", paddingRight: "0em",
             flex: "1 1 0%" }}>
             <div>
@@ -106,20 +106,22 @@ export function PostCard({ post }: PostProps) {
                     <div style={{ display: 'flex', flexDirection: 'row', 
                                     alignItems: "center", gap: "4px", flex: "1 1 0%" }}>
                         <span style={{ marginLeft: '1em', fontWeight: 'bold', cursor: 'pointer' }}
-                            onClick={() => navigate(`${post.author.userName}`)}>
-                            {post.author.displayName}
+                            onClick={() => navigate(`/profile/${uPost.author.userName}`)}>
+                            {uPost.author.displayName}
                         </span>
                         <span>
-                            {" @"}{post.author.userName}
+                            {" @"}{uPost.author.userName}
                         </span>
                         <span>
                             {" "}{getTimeSinceString()}
                         </span>
                     </div>
-                    <div style={{ flex: "1 1 0%", width: "auto" }}>
+                    <div style={{ flex: "1 1 0%", width: "auto", cursor: 'pointer' }} 
+                        onClick={() => navigate(`/profile/${uPost.author.userName}/post/${uPost.id}`)}>
                         <div style={{ flex: "1 1 0%", width: "auto" }}>
-                        <div style={{ marginLeft: '1em', marginTop: '1em', flex: "1 1 0%", width: "auto" }}>{post.text}</div>
-                        </div>
+                            <div style={{ marginLeft: '1em', marginTop: '1em', flex: "1 1 0%", width: "auto" }}>
+                                {uPost.text}</div>
+                            </div>
                     </div>
                     
                     <div style={{ display: 'flex', flexDirection: 'row', 
@@ -133,7 +135,7 @@ export function PostCard({ post }: PostProps) {
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     chat_bubble 
                                 </i>
-                                <span style={{ marginLeft: '0.2em' }}> {post.replyCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}> {uPost.replyCount} </span>
                             </button>
                         </div>
 
@@ -145,7 +147,7 @@ export function PostCard({ post }: PostProps) {
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     repeat
                                 </i>
-                                <span style={{ marginLeft: '0.2em' }}> {post.repostCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}> {uPost.repostCount} </span>
                             </button>
                         </div>
 
@@ -163,7 +165,7 @@ export function PostCard({ post }: PostProps) {
                                 </i>
                                 }
                                 
-                                <span style={{ marginLeft: '0.2em' }}> {post.likeCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}> {uPost.likeCount} </span>
                             </button>
                         </div>
                     </div>

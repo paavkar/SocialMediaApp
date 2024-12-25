@@ -66,11 +66,14 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> GetPost(string userName, string postId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-            if (String.IsNullOrEmpty(userId))
-                return Unauthorized(new { Message = "No valid token given with request." });
+            //if (String.IsNullOrEmpty(userId))
+            //    return Unauthorized(new { Message = "No valid token given with request." });
 
             var user = await userManager.GetUserByUserNameAsync(userName);
             var post = await postsService.GetPostByIdAsync(postId, user.Id);
+
+            if (post is null)
+                return NotFound(new { Message = "Post not found." });
 
             return Ok(post);
         }

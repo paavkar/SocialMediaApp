@@ -28,12 +28,13 @@ export interface Post {
     accountsReposted: Author[];
     quotes: Post[];
     replies: Post[];
+    thread: Post[];
     createdAt: Date;
     author: Author;
     labels: string[];
     langs: string[];
-    quotedPost: Post;
-    parentPost: Post;
+    quotedPost?: Post;
+    parentPost?: Post;
     previousVersions: Post[];
     bookmarkCount: number;
     isPinned: boolean;
@@ -54,7 +55,7 @@ export interface User {
     accountSettings: AccountSettings;
     following?: Author[];
     followers?: Author[];
-    followRequests: Author[];
+    followRequests?: Author[];
 }
 
 export interface RegisterDTO {

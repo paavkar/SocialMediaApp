@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { setLogout, RootState } from "../state";
@@ -24,14 +24,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div style={{ display:' flex', flexDirection: 'row', justifyContent: 'center' }}>
             <nav style={{ display: 'flex', alignItems:'center', flexDirection: 'column', 
                 width: '20vw', fontSize: '1.5em', paddingTop: '1em', borderRight: '1px solid cyan' }}>
-                <NavLink to={`/${user?.userName}`}>Profile</NavLink>
-                <NavLink to={"/"}>Home</NavLink>
-                <NavLink to={""} onClick={logOut}>Logout</NavLink>
+                <Link to={`/profile/${user?.userName}`}>Profile</Link>
+                <Link to={"/"}>Home</Link>
+                <Link to={"/"} onClick={logOut}>Logout</Link>
             </nav>
 
             <div style={{ display: 'flex', flexDirection: 'column', width: '30vw', paddingTop: '1em' }}>
                 {children}
             </div>
+
             <div style={{ display: 'flex', alignItems:'center', flexDirection: 'column', 
                         width: '20vw', paddingTop: '1em', borderLeft: '1px solid cyan' }}>
 

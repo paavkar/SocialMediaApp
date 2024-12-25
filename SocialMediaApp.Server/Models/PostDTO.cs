@@ -12,6 +12,7 @@
         public List<Author> AccountsReposted { get; set; }
         public List<PostDTO> Quotes { get; set; }
         public List<PostDTO> Replies { get; set; }
+        public List<PostDTO> Thread { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
         public AuthorDTO Author { get; set; }
         public List<string> Labels { get; set; }

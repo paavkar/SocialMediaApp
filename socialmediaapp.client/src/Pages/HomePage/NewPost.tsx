@@ -13,7 +13,7 @@ const Schema = z.object({
     langs: z.custom<string[]>()
 })
 
-export function NewPost() {
+export const NewPost = () => {
     const user = useSelector<RootState, User | null>((state) => state.user);
     const token = useSelector<RootState, string | null>((state) => state.token);
     
@@ -56,7 +56,7 @@ return (
                 placeholder=" What's happening?"
                 rows={8}
                 style={{ fontSize: '17px', resize: 'none', width: '100%', padding: '0px',
-                    backgroundColor: '#242424', border: "0px"
+                    backgroundColor: '#242424', border: "none", outline: 'none'
                  }} />
             <button disabled={isSubmitting} type="submit"
                     style={{ margin: '1em 0em 0.2em 0.5em', backgroundColor: 'green',

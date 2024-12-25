@@ -6,12 +6,12 @@ import { PostCard } from "./PostCard";
 import { NewPost } from "./NewPost";
 import Layout from "../layout"
 
-export function HomePage() {
+export const HomePage = () => {
     const [posts, setPosts] = useState<Post[]>([]);
     const token = useSelector<RootState, string | null>((state) => state.token);
 
     async function fetchPosts() {
-        var response = await fetch("api/Post", {
+        var response = await fetch("/api/Post", {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -36,7 +36,7 @@ export function HomePage() {
             <div>
                 <NewPost />
             </div>
-            <div style={{ marginRight: "1em"}}>
+            <div style={{ marginRight: "1em" }}>
                 {posts.map((post) => {
                     return (
                         <PostCard post={post} />

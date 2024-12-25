@@ -32,6 +32,19 @@ namespace SocialMediaApp.Server.Services
             var postReplies = await cosmosDbService.GetPostRepliesAsync(post.Id);
             postDto.Replies = postReplies;
 
+            var reply = postDto;
+
+            while (reply.ParentPost != null)
+            {
+                postDto.Thread ??= [];
+                var parent = await cosmosDbService.GetPostByIdAsync(reply.ParentPost.Id, reply.ParentPost.Author.Id);
+                var parentAuthor = await cosmosDbService.GetUserByIdAsync(parent.Author.Id);
+
+                postDto.Thread.Add(parent.ToPostDTO(parentAuthor));
+
+                reply = parent.ToPostDTO(parentAuthor);
+            }
+
             return postDto;
         }
 

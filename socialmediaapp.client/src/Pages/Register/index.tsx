@@ -16,7 +16,7 @@ const Schema = z.object({
     path: ["confirmPassword"]
 })
 
-export default function Register() {
+export const Register = () => {
     const { register, handleSubmit, formState: { errors, isSubmitting }, reset} = useForm<z.infer<typeof Schema>>({
         resolver: zodResolver(Schema),
         defaultValues: {

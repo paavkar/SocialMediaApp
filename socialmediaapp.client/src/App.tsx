@@ -1,24 +1,42 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import SignIn from './Pages/SignIn'
-import Register from './Pages/Register';
+import { BrowserRouter, Routes, Route, Navigate, createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { SignIn } from './Pages/SignIn'
+import { Register } from './Pages/Register';
 import { HomePage } from './Pages/HomePage';
 import { RootState } from "./state";
 import { useSelector } from "react-redux";
 import { ProfilePage } from './Pages/ProfilePage';
+import { DetailedPostCard } from './Pages/HomePage/DetailedPostCard';
 
-function App() {
+const App = () => {
     const isAuth = Boolean(useSelector<RootState>((state) => state.token));
 
+    const router = createBrowserRouter([
+        {
+            path: '/',
+            element: isAuth ? <HomePage /> : <SignIn />,
+        },
+        {
+            path:'/login',
+            element: isAuth ? <Navigate to="/" /> : <SignIn />
+        },
+        {
+            path:'/register',
+            element: isAuth ? <Navigate to="/" /> : <Register />
+        },
+        {
+            path: '/profile/:userName',
+            element: <ProfilePage />
+        },
+        {
+            path: '/profile/:userName/post/:postId',
+            element: <DetailedPostCard />
+        }
+    ])
+
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path='/' element={isAuth ? <HomePage /> : <SignIn /> } />
-                <Route path='/login' element={isAuth ? <Navigate to="/" /> : <SignIn /> } />
-                <Route path='/register' element={isAuth ? <Navigate to="/" /> : <Register /> } />
-                <Route path='/:userName' element={<ProfilePage />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-        </BrowserRouter>
+        <>
+            <RouterProvider router={router} />
+        </>
     );
 }
 

@@ -12,7 +12,7 @@ const Schema = z.object({
     password: z.string().min(1, { message: "Write your password" }),
 })
 
-export default function SignIn() {
+export const SignIn = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -26,7 +26,7 @@ export default function SignIn() {
     const [httpError, setHttpError] = useState("");
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-            var response = await fetch("api/Auth/login",{
+            var response = await fetch("api/Auth/login", {
                 method: "POST",
                 body: JSON.stringify(values),
                 headers: {
@@ -96,7 +96,10 @@ export default function SignIn() {
                             placeholder="Password">
                     </input>
                     
-                    <button disabled={isSubmitting} type="submit" style={{ marginTop: '1em', backgroundColor: 'green', width: '17em' }}>
+                    <button disabled={isSubmitting} type="submit" 
+                        style={{ marginTop: '1em', backgroundColor: 'green', width: '17em',
+                            height: '2.5em'
+                         }}>
                         Sign in
                     </button>
                 </div>

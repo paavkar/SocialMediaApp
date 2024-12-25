@@ -42,6 +42,7 @@ namespace SocialMediaApp.Server.CosmosDb
             await database.CreateContainerIfNotExistsAsync(id: "AccountRoles", partitionKeyPath: "/partitionKey");
             await database.CreateContainerIfNotExistsAsync(id: "LinkedRoles", partitionKeyPath: "/roleId");
             await database.CreateContainerIfNotExistsAsync(id: "Posts", partitionKeyPath: "/partitionKey");
+            await database.CreateContainerIfNotExistsAsync(id: "leaseContainer", partitionKeyPath: "/partitionKey");
         }
     }
 }

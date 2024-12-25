@@ -233,17 +233,6 @@ namespace SocialMediaApp.Server.CosmosDb
             }
         }
 
-        public async Task<List<Post>> GetPostsWithCertainAuthorAsync(string userId)
-        {
-            var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.author.id = @UserId")
-                .WithParameter("@UserId", userId);
-
-            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
-
-            return posts;
-        }
-
         public async Task<List<Post>> GetQuotesWithCertainQuotedAuthorAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
@@ -451,22 +440,9 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt DESC")
                 .WithParameter("@UserId", userId);
 
-            using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
-                queryDefinition: parameterizedQuery);
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
 
-            List<Post> userPosts = [];
-
-            while (feedIterator.HasMoreResults)
-            {
-                FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
-
-                foreach (var userPost in posts)
-                {
-                    userPosts.Add(userPost);
-                }
-            }
-
-            return userPosts;
+            return posts;
         }
 
         public async Task<Post> CreatePostAsync(Post post)
@@ -475,8 +451,6 @@ namespace SocialMediaApp.Server.CosmosDb
             post.CreatedAt = DateTimeOffset.UtcNow;
             post.AccountsLiked = [];
             post.AccountsReposted = [];
-            post.QuotedPost ??= new();
-            post.ParentPost ??= new();
             post.PreviousVersions ??= [];
             var response = await PostContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
 

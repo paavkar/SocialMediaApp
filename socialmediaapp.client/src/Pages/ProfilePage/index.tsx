@@ -7,7 +7,7 @@ import Layout from "../layout";
 import { PostCard } from "../HomePage/PostCard";
 import { useNavigate } from "react-router";
 
-export function ProfilePage() {
+export const ProfilePage = () => {
     const { userName } = useParams()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -19,7 +19,7 @@ export function ProfilePage() {
     const isAuth = Boolean(useSelector<RootState>((state) => state.token));
 
     async function fetchUser() {
-        var response = await fetch(`api/User/${userName}`, {
+        var response = await fetch(`/api/User/${userName}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -36,7 +36,7 @@ export function ProfilePage() {
     }
 
     async function fetchUserPosts() {
-        var response = await fetch(`api/Post/user-posts/${userName}`, {
+        var response = await fetch(`/api/Post/user-posts/${userName}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -137,9 +137,10 @@ export function ProfilePage() {
                 </div>
                 
                 <div style={{ position: 'sticky', top: 0, backgroundColor: '#242424',
-                        width: '100%' }}>
+                        width: '100%', borderBottom: "1px solid cyan",
+                        borderRight: '1px solid cyan' }}>
                     <div style={{ display: 'flex', flexDirection: 'row', 
-                            justifyContent: "space-evenly", marginTop: '1em',
+                            justifyContent: "space-evenly", marginTop: '1em'
                         }}>
                         <div>
                             <span onClick={() => setActiveTab("posts")} 
@@ -163,7 +164,6 @@ export function ProfilePage() {
                             : null}
                         </div>
                     </div>
-                    <hr style={{ borderColor: "cyan", width: '100%' }} />
                 </div>
                 
                 {activeTab == "posts"
