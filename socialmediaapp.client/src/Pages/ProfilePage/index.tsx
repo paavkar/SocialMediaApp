@@ -59,7 +59,7 @@ export const ProfilePage = () => {
             description: loggedInUser!.description,
             userName: loggedInUser!.userName
         }
-        var response = await fetch(`api/User/follow-user/${userName}`, {
+        var response = await fetch(`/api/User/follow-user/${userName}`, {
                 method: "PATCH",
                 body: JSON.stringify(follower),
                 headers: {
@@ -106,7 +106,7 @@ export const ProfilePage = () => {
                                         backgroundColor: 'green'}}>
                                     Edit profile
                                 </button>
-                            : <button style={{ height: '2.5em', width: '5em', marginRight: '1em', 
+                            : <button style={{ height: '2.5em', width: '5.5em', marginRight: '1em', 
                                 backgroundColor: 'green' }} onClick={followUser}>
                                     {loggedInUser!.following!.some(u => u.userName === userName)
                                     ? <span>Following</span>
@@ -115,6 +115,14 @@ export const ProfilePage = () => {
                                 </button>
                         }
                     </div>
+                    {loggedInUser?.followers?.some(u => u.userName === userName)
+                    ? <div style={{ backgroundColor: "#2424", borderRadius: '0.5em', padding: '0.1em',
+                        width: '5.5em'
+                     }}>
+                        <span style={{ fontSize: '0.9em', marginLeft: '0.5em' }}>Follows you</span>
+                    </div>
+                    : null}
+                    
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>
