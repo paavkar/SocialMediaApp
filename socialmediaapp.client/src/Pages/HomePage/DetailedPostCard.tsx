@@ -7,11 +7,13 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../state";
 import Layout from "../layout";
 import { PostCard } from "./PostCard";
+import { NewPostModal } from "./NewPostModal";
 
 export const DetailedPostCard = () => {
     const { userName } = useParams()
     const { postId } = useParams()
     const [post, setPost] = useState<Post | null>(null)
+    const [showModal, setShowModal] = useState(false)
     const token = useSelector<RootState, string | null>((state) => state.token);
     const user = useSelector<RootState, User | null>((state) => state.user);
     
@@ -30,8 +32,6 @@ export const DetailedPostCard = () => {
 
         if (response.ok) {
             var userAndPost = await response.json()
-
-            console.log(userAndPost)
             
             dispatch(setUser({ user: userAndPost.user }))
             setPost(userAndPost.post)
@@ -58,6 +58,10 @@ export const DetailedPostCard = () => {
         const postDate = new Date(post!.createdAt)
 
         return `${postDate.toDateString()} at ${postDate.toLocaleTimeString()}`
+    }
+
+    function addToPostReplies(reply: Post) {
+        post?.replies.push(reply)
     }
 
     useEffect(() => {
@@ -191,22 +195,28 @@ export const DetailedPostCard = () => {
                         </div>
                     </div> }
                 </div>
-                <div style={{ borderBottom: '1px solid cyan' }}>
-                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                {showModal
+                ? <div>
+                    <NewPostModal post={post != null ? post : undefined} setShowModal={setShowModal}
+                        addToPostReplies={addToPostReplies} />
+                  </div>
+                : null}
+                {showModal ? <div>show</div> : null}
+
+                <div style={{ borderBottom: '1px solid cyan', cursor: 'pointer' }}
+                    onClick={() => setShowModal(true)}>
+                    <div style={{ display: 'flex', flexDirection: 'row' }} onClick={() => setShowModal(true)}>
                         <img src="" width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} />
-                        <textarea style={{ width: '100%', backgroundColor: '#242424', border: 'none', resize: 'none',
-                            height: '6em', fontSize: '17px', outline: 'none', marginTop: '0.5em' }} 
-                            placeholder="Write your reply" maxLength={240} />
+                        <button style={{ display: 'flex', justifyContent: 'flex-start', width: '100%',
+                            color: '#6B7575',
+                            backgroundColor: '#242424', border: 'none', resize: 'none',
+                            height: '3em', fontSize: '17px', outline: 'none', marginTop: '0.5em',
+                            cursor: 'pointer' }}
+                            onClick={() => setShowModal(true)}>Write your reply</button>
                     </div>
-                    
-                    <button disabled={true} type="submit"
-                        style={{ margin: '1em 0em 0.5em 0.5em', backgroundColor: 'green',
-                        height: '2em', width: '4em' }}>
-                        Post
-                    </button>
                 </div>
 
-                <div>
+                <div style={{ marginRight: '1em' }}>
                     {post?.replies?.map((reply) => {
                         return <PostCard post={reply} />
                     })}

@@ -110,11 +110,14 @@ export const ProfilePage = () => {
                                 backgroundColor: 'green' }} onClick={followUser}>
                                     {loggedInUser!.following!.some(u => u.userName === userName)
                                     ? <span>Following</span>
-                                    : <span>Follow</span>
+                                    : loggedInUser?.followers?.some(u => u.userName === userName)
+                                        ? <span>Follow back</span>
+                                        : <span>Follow</span>
                                     }
                                 </button>
                         }
                     </div>
+                    
                     {loggedInUser?.followers?.some(u => u.userName === userName)
                     ? <div style={{ backgroundColor: "#2424", borderRadius: '0.5em', padding: '0.1em',
                         width: '5.5em'
@@ -122,7 +125,6 @@ export const ProfilePage = () => {
                         <span style={{ fontSize: '0.9em', marginLeft: '0.5em' }}>Follows you</span>
                     </div>
                     : null}
-                    
 
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
                         <span style={{ fontWeight: 'bold', fontSize: '1.1em' }}>

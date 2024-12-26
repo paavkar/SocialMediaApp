@@ -45,9 +45,7 @@ export const PostCard = ({ post }: PostProps) => {
 
         let interval = seconds / 31536000; 
         if (interval > 1) {
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} years ago`
-            : timeString = `${Math.floor(interval)} year ago`
+            timeString = postDate.toLocaleDateString()
             return timeString
         } 
 

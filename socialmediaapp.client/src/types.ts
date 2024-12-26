@@ -12,6 +12,38 @@ export interface Author {
     following?: Author[];
 }
 
+export interface Embed {
+    embedType: EmbedType;
+    images?: Media[];
+    videos?: Media[];
+    externalLink?: ExternalLink;
+}
+
+export interface AspectRatio {
+    height: number;
+    width: number;
+}
+
+export interface ExternalLink {
+    externalLinkUri: string;
+    externalLinkTitle: string;
+    externalLinkDescription: string;
+}
+
+export enum EmbedType {
+    None = 0,
+    Image,
+    Images,
+    Video,
+    ExternalLink
+}
+
+export interface Media {
+    altText: string;
+    aspectRatio: AspectRatio;
+    fileName: string;
+}
+
 export interface LoginDTO {
     emailOrUserName: string;
     password: string;
@@ -38,6 +70,7 @@ export interface Post {
     previousVersions: Post[];
     bookmarkCount: number;
     isPinned: boolean;
+    embed: Embed;
 
     repostedBy: Author;
     repostedAt: Date;

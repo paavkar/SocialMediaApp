@@ -99,6 +99,40 @@ namespace SocialMediaApp.Server.Controllers
             return Ok(new { Message = "Accepted the follow request.", updatedUser });
         }
 
+        [HttpGet("user-followers/{userId}")]
+        public async Task<IActionResult> GetFollowersAsync(string userId)
+        {
+            string tokenUserId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            if (String.IsNullOrEmpty(tokenUserId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            var followers = await userManager.GetUserFollowersAsync(userId);
+
+            if (followers is null || followers.Count == 0)
+                return NotFound(new { Message = "No followers found for this user." });
+
+            var followerDtos = followers.Select(f => f.ToUserDTO()).ToList();
+
+            return Ok(followerDtos);
+        }
+
+        [HttpGet("user-followings/{userId}")]
+        public async Task<IActionResult> GetUserFollowingsAsync(string userId)
+        {
+            string tokenUserId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+            if (String.IsNullOrEmpty(tokenUserId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            var followings = await userManager.GetUserFollowingsAsync(userId);
+
+            if (followings is null || followings.Count == 0)
+                return NotFound(new { Message = "No followings found for this user." });
+
+            var followingDtos = followings.Select(f => f.ToUserDTO()).ToList();
+
+            return Ok(followingDtos);
+        }
+
         [HttpGet("search-users/{searchTerm}")]
         public async Task<IActionResult> SearchUsers(string searchTerm)
         {

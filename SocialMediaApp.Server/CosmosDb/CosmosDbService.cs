@@ -186,10 +186,10 @@ namespace SocialMediaApp.Server.CosmosDb
             return users;
         }
 
-        public async Task<List<UserAccount>> GetFollowingOrFollowerUsersAsync(string userId)
+        public async Task<List<UserAccount>> GetUserFollowingsAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM UserAccounts ua WHERE ARRAY_CONTAINS(ua.followers, { 'id': @UserId }, true) OR ARRAY_CONTAINS(ua.following, { 'id': @UserId }, true)")
+                ("SELECT * FROM UserAccounts ua WHERE ARRAY_CONTAINS(ua.followers, { 'id': @UserId }, true)")
                 .WithParameter("@UserId", userId);
 
             var users = await GetUsersFromFeedIterator(parameterizedQuery);
@@ -197,10 +197,10 @@ namespace SocialMediaApp.Server.CosmosDb
             return users;
         }
 
-        public async Task<List<UserAccount>> GetBookmarkedPostsAuthorsUsersAsync(string userId)
+        public async Task<List<UserAccount>> GetUserFollowersAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM UserAccounts ua WHERE ARRAY_CONTAINS(ua.bookmarks, { 'author.id': @UserId }, true)")
+                ("SELECT * FROM UserAccounts ua ARRAY_CONTAINS(ua.following, { 'id': @UserId }, true)")
                 .WithParameter("@UserId", userId);
 
             var users = await GetUsersFromFeedIterator(parameterizedQuery);
@@ -226,53 +226,6 @@ namespace SocialMediaApp.Server.CosmosDb
                     }
                 }
                 return matchingUsers;
-            }
-            catch (Exception)
-            {
-                return [];
-            }
-        }
-
-        public async Task<List<Post>> GetQuotesWithCertainQuotedAuthorAsync(string userId)
-        {
-            var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.quotedPost.author.id = @UserId")
-                .WithParameter("@UserId", userId);
-
-            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
-
-            return posts;
-        }
-
-        public async Task<List<Post>> GetRepliesWithCertainParentAuthorAsync(string userId)
-        {
-            var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.parentPost.author.id = @UserId")
-                .WithParameter("@UserId", userId);
-
-            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
-
-            return posts;
-        }
-
-        public async Task<List<Post>> GetPostsFromFeedIteratorAsync(QueryDefinition parameterizedQuery)
-        {
-            try
-            {
-                using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
-                                queryDefinition: parameterizedQuery);
-
-                List<Post> matchingPosts = [];
-
-                while (feedIterator.HasMoreResults)
-                {
-                    FeedResponse<Post> posts = await feedIterator.ReadNextAsync();
-                    foreach (var post in posts)
-                    {
-                        matchingPosts.Add(post);
-                    }
-                }
-                return matchingPosts;
             }
             catch (Exception)
             {
@@ -380,7 +333,7 @@ namespace SocialMediaApp.Server.CosmosDb
             var parameterizedQuery = new QueryDefinition
                 ("SELECT * FROM Posts p ORDER BY p.createdAt DESC");
 
-            var posts = await GetPostsAsync(parameterizedQuery);
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
 
             foreach (var post in posts)
             {
@@ -399,7 +352,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM Posts p WHERE p.quotedPost.id = @PostId ORDER BY p.createdAt DESC")
                 .WithParameter("@PostId", postId);
 
-            var posts = await GetPostsAsync(parameterizedQuery);
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
 
             return posts;
         }
@@ -410,12 +363,12 @@ namespace SocialMediaApp.Server.CosmosDb
                 ("SELECT * FROM Posts p WHERE p.parentPost.id = @PostId ORDER BY p.createdAt DESC")
                 .WithParameter("@PostId", postId);
 
-            var posts = await GetPostsAsync(parameterizedQuery);
+            var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
 
             return posts;
         }
 
-        public async Task<List<PostDTO>> GetPostsAsync(QueryDefinition parameterizedQuery)
+        public async Task<List<PostDTO>> GetPostsFromFeedIteratorAsync(QueryDefinition parameterizedQuery)
         {
             using FeedIterator<Post> feedIterator = PostContainer.GetItemQueryIterator<Post>(
                 queryDefinition: parameterizedQuery);
@@ -434,13 +387,21 @@ namespace SocialMediaApp.Server.CosmosDb
             return posts;
         }
 
-        public async Task<List<Post>> GetUserPostsAsync(string userId)
+        public async Task<List<PostDTO>> GetUserPostsAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
                 ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt DESC")
                 .WithParameter("@UserId", userId);
 
             var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
+
+            foreach (var post in posts)
+            {
+                var quotedPosts = await GetPostQuotesAsync(post.Id);
+                post.Quotes = quotedPosts;
+                var postReplies = await GetPostRepliesAsync(post.Id);
+                post.Replies = postReplies;
+            }
 
             return posts;
         }
@@ -452,6 +413,23 @@ namespace SocialMediaApp.Server.CosmosDb
             post.AccountsLiked = [];
             post.AccountsReposted = [];
             post.PreviousVersions ??= [];
+            post.Labels ??= [];
+
+            if (post.ParentPost is not null)
+            {
+                var parentPost = await GetPostByIdAsync(post.ParentPost.Id!, post.ParentPost.Author.Id);
+                parentPost.ReplyCount++;
+                post.ParentPost.ReplyCount = parentPost.ReplyCount;
+
+                await PostContainer.PatchItemAsync<Post>(
+                    parentPost.Id,
+                    new PartitionKey(parentPost.PartitionKey),
+                    patchOperations: new[]
+                    {
+                        PatchOperation.Replace("/replyCount", parentPost.ReplyCount)
+                    });
+            }
+
             var response = await PostContainer.CreateItemAsync(post, new PartitionKey(post.PartitionKey));
 
             return response.Resource;

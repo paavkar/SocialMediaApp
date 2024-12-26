@@ -12,7 +12,7 @@ namespace SocialMediaApp.Server.Services
             return posts;
         }
 
-        public async Task<List<Post>> GetUserPostsAsync(string userId)
+        public async Task<List<PostDTO>> GetUserPostsAsync(string userId)
         {
             var posts = await cosmosDbService.GetUserPostsAsync(userId);
 
@@ -22,8 +22,8 @@ namespace SocialMediaApp.Server.Services
         public async Task<PostDTO> GetPostByIdAsync(string id, string userId)
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, userId);
-
             var author = await cosmosDbService.GetUserByIdAsync(post.Author.Id);
+
             var postDto = post.ToPostDTO(author);
 
             var quotedPosts = await cosmosDbService.GetPostQuotesAsync(post.Id);

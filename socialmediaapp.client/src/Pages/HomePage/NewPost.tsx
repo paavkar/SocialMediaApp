@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import { User } from '../../types';
+import { Embed, EmbedType, User } from '../../types';
 import { RootState } from "../../state";
 import { z } from "zod";
 import { useForm } from "react-hook-form"
@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 const Schema = z.object({
     text: z.string().min(1),
     author: z.custom<Author>(),
-    langs: z.custom<string[]>()
+    langs: z.custom<string[]>(),
+    embed: z.custom<Embed>()
 })
 
 export const NewPost = () => {
@@ -29,11 +30,14 @@ export const NewPost = () => {
                     userName: user?.userName,
                 },
                 langs: ["en"],
+                embed: {
+                    embedType: EmbedType.None
+                }
             }
         })
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-        var response = await fetch("api/Post/post", {
+        var response = await fetch("/api/Post/post", {
             method: "POST",
             body: JSON.stringify(values),
             headers: {

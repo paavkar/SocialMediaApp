@@ -11,6 +11,8 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<UserAccount> GetUserByIdAsync(string userId);
         Task<object> FollowUserAsync(string userName, Author follower);
         Task<object> ConfirmFollowAsync(string userName, Author follower);
+        Task<List<UserAccount>> GetUserFollowingsAsync(string userId);
+        Task<List<UserAccount>> GetUserFollowersAsync(string userId);
         Task<List<UserAccount>> MatchingUsersAsync(string searchTerm);
         Task<UserAccount> UpdateUserAsync(Author user);
 
@@ -20,7 +22,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
         Task<Post> CreatePostAsync(Post post);
         Task<bool> DeletePostAsync(string postId, string userId);
-        Task<List<Post>> GetUserPostsAsync(string userId);
+        Task<List<PostDTO>> GetUserPostsAsync(string userId);
         Task<List<PostDTO>> GetAllPostsAsync();
         Task<List<PostDTO>> GetPostQuotesAsync(string postId);
         Task<List<PostDTO>> GetPostRepliesAsync(string postId);

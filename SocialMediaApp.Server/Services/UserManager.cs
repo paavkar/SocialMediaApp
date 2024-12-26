@@ -68,6 +68,20 @@ namespace SocialMediaApp.Server.Services
             return user;
         }
 
+        public async Task<List<UserAccount>> GetUserFollowersAsync(string userId)
+        {
+            var followers = await cosmosDbService.GetUserFollowersAsync(userId);
+
+            return followers;
+        }
+
+        public async Task<List<UserAccount>> GetUserFollowingsAsync(string userId)
+        {
+            var followings = await cosmosDbService.GetUserFollowingsAsync(userId);
+
+            return followings;
+        }
+
         public async Task<List<UserAccount>> MatchingUsersAsync(string searchTerm)
         {
             var users = await cosmosDbService.MatchingUsersAsync(searchTerm);

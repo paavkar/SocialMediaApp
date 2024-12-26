@@ -5,7 +5,7 @@ namespace SocialMediaApp.Server.Models
     public class Post
     {
         [JsonProperty(PropertyName = "id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [JsonProperty(PropertyName = "text")]
         public string Text { get; set; }
@@ -23,10 +23,10 @@ namespace SocialMediaApp.Server.Models
         public int ReplyCount { get; set; }
 
         [JsonProperty(PropertyName = "accountsLiked")]
-        public List<Author> AccountsLiked { get; set; }
+        public List<Author>? AccountsLiked { get; set; }
 
         [JsonProperty(PropertyName = "accountsReposted")]
-        public List<Author> AccountsReposted { get; set; }
+        public List<Author>? AccountsReposted { get; set; }
 
         [JsonProperty(PropertyName = "createdAt")]
         public DateTimeOffset CreatedAt { get; set; }
@@ -35,7 +35,7 @@ namespace SocialMediaApp.Server.Models
         public Author Author { get; set; }
 
         [JsonProperty(PropertyName = "labels")]
-        public List<string> Labels { get; set; }
+        public List<string>? Labels { get; set; }
 
         [JsonProperty(PropertyName = "langs")]
         public List<string> Langs { get; set; }
@@ -54,6 +54,9 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "isPinned")]
         public bool IsPinned { get; set; } = false;
+
+        [JsonProperty(PropertyName = "embed")]
+        public Embed? Embed { get; set; }
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
