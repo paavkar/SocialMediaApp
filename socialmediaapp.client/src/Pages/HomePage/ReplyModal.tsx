@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Author, Post } from "../../types";
-import { useNavigate } from "react-router-dom";
 
 const Schema = z.object({
     text: z.string().min(1),
@@ -21,7 +20,7 @@ type PostProps = {
     addToPostReplies: (reply: Post) => void;
 }
 
-export const NewPostModal = ({ post, setShowModal, addToPostReplies }: PostProps) => {
+export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) => {
     const user = useSelector<RootState, User | null>((state) => state.user);
     const token = useSelector<RootState, string | null>((state) => state.token);
     
@@ -65,7 +64,6 @@ return (
     <div style={{ display: 'block', position: 'fixed', zIndex: 1, left: 0, top: 0, 
                 width: '100%', height: '100%', overflow: 'auto', 
                 backgroundColor: `rgba(0,0,0,0.4)` }}>
-        
         <div style={{ backgroundColor: '#242424', margin: '15em auto', padding: '20px', border: '1px solid #888',
             width: '30%', height: 'auto', borderRadius: '0.5em' }}>
             <div style={{ display: 'flex', flexDirection: 'row', borderBottom: '1px solid cyan' }}>

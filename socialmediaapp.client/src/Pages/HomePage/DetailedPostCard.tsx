@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../../state";
 import Layout from "../layout";
 import { PostCard } from "./PostCard";
-import { NewPostModal } from "./NewPostModal";
+import { ReplyModal } from "./ReplyModal";
 
 export const DetailedPostCard = () => {
     const { userName } = useParams()
@@ -64,6 +64,66 @@ export const DetailedPostCard = () => {
         post?.replies.push(reply)
     }
 
+    function getTimeSinceString(extractedPost: Post): string {
+        const postDate = new Date(extractedPost.createdAt)
+        const currentDate = new Date()
+        const timeDifference = currentDate.getTime() - postDate.getTime()
+        const seconds = timeDifference/1000
+        let timeString = ""
+
+        let interval = seconds / 31536000; 
+        if (interval > 1) {
+            timeString = postDate.toLocaleDateString()
+            return timeString
+        } 
+
+        interval = seconds / 2592000; 
+        if (interval > 1) { 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} months ago`
+            : timeString = `${Math.floor(interval)} month ago`
+            return timeString
+        } 
+
+        interval = seconds / 604800; 
+        if (interval > 1) {
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} weeks ago`
+            : timeString = `${Math.floor(interval)} week ago`
+            return timeString
+        } 
+
+        interval = seconds / 86400; 
+        if (interval > 1) { 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} days ago`
+            : timeString = `${Math.floor(interval)} day ago`
+            return timeString
+        } 
+
+        interval = seconds / 3600; 
+        if (interval > 1) {
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} hours ago`
+            : timeString = `${Math.floor(interval)} hour ago`
+            return timeString
+        } 
+
+        interval = seconds / 60; 
+        if (interval > 1) { 
+            Math.floor(interval) > 1
+            ? timeString = `${Math.floor(interval)} minutes ago`
+            : timeString = `${Math.floor(interval)} minute ago`
+            return timeString
+        } 
+
+        return `${Math.floor(seconds)} seconds ago`
+    }
+
+    function navigateToQuotedPost() {
+        navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
+    }
+
     useEffect(() => {
         {post === null
             ? fetchPost()
@@ -105,6 +165,27 @@ export const DetailedPostCard = () => {
                                     </div>
                                     </div>
                                 </div>
+
+                                {post.quotedPost
+                                ? <div style={{ display: 'flex', flexDirection: 'row', border: '1px solid cyan',
+                                    borderRadius: '0.5em', marginTop: '0.5em', marginRight: '1em', cursor: 'pointer'
+                                    }}>
+                                    <div style={{ display: 'flex', marginTop: '0.5em' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', 
+                                            paddingBottom: '1em' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}
+                                                onClick={() => navigateToQuotedPost()}>
+                                                <img src="" width={20} height={20} style={{ borderRadius: '50%', 
+                                                    margin: '0.5em' }} />
+                                                <span>{post?.quotedPost.author.displayName}</span>
+                                                <span> {" @"}{post?.quotedPost.author.userName}</span>
+                                                <span> {" "}{getTimeSinceString(post.quotedPost)}</span>
+                                            </div>
+                                            <span style={{ marginLeft: '0.5em' }}>{post?.quotedPost.text}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                : null}
 
                                 <div style={{ borderTop: '1px solid cyan',
                                     borderBottom: '1px solid cyan', marginRight: '1em', marginTop: '1em',
@@ -175,7 +256,9 @@ export const DetailedPostCard = () => {
                                             <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                                 repeat
                                             </i>
-                                            <span style={{ marginLeft: '0.2em' }}> {post!.repostCount} </span>
+                                            <span style={{ marginLeft: '0.2em' }}>
+                                                {post!.repostCount+post.quoteCount}
+                                            </span>
                                         </button>
                                     </div>
 
@@ -203,7 +286,7 @@ export const DetailedPostCard = () => {
                 </div>
                 {showModal
                 ? <div>
-                    <NewPostModal post={post != null ? post : undefined} setShowModal={setShowModal}
+                    <ReplyModal post={post != null ? post : undefined} setShowModal={setShowModal}
                         addToPostReplies={addToPostReplies} />
                   </div>
                 : null}

@@ -5,7 +5,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../state";
-import { NewPostModal } from "./NewPostModal";
+import { ReplyModal } from "./ReplyModal";
+import { QuoteModal } from "./QuoteModal";
 
 type PostProps = {
     post: Post;
@@ -15,6 +16,7 @@ export const PostCard = ({ post }: PostProps) => {
     const [currentDate, _setCurrentDate] = useState<Date>(new Date())
     const [uPost, setUPost] = useState(post)
     const [showModal, setShowModal] = useState(false)
+    const [showQuoteModal, setShowQuoteModal] = useState(false)
     const token = useSelector<RootState, string | null>((state) => state.token);
     const user = useSelector<RootState, User | null>((state) => state.user);
     
@@ -39,8 +41,8 @@ export const PostCard = ({ post }: PostProps) => {
         }
     }
 
-    function getTimeSinceString(): string {
-        const postDate = new Date(post.createdAt)
+    function getTimeSinceString(extractedPost: Post): string {
+        const postDate = new Date(extractedPost.createdAt)
         const timeDifference = currentDate.getTime() - postDate.getTime()
         const seconds = timeDifference/1000
         let timeString = ""
@@ -98,6 +100,10 @@ export const PostCard = ({ post }: PostProps) => {
         post?.replies.push(reply)
     }
 
+    function navigateToQuotedPost() {
+        navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
+    }
+
     return (
         <div key={uPost.id} style={{ display: "flex", flexDirection: "row", width: '100%', 
             height: 'auto', borderBottom: "1px solid cyan", padding: "1em", paddingRight: "0em",
@@ -117,7 +123,7 @@ export const PostCard = ({ post }: PostProps) => {
                             {" @"}{uPost.author.userName}
                         </span>
                         <span>
-                            {" "}{getTimeSinceString()}
+                            {" "}{getTimeSinceString(post)}
                         </span>
                     </div>
                     <div style={{ flex: "1 1 0%", width: "auto", cursor: 'pointer' }} 
@@ -127,6 +133,26 @@ export const PostCard = ({ post }: PostProps) => {
                                 {uPost.text}</div>
                             </div>
                     </div>
+                    
+                    {post.quotedPost
+                    ? <div style={{ display: 'flex', flexDirection: 'row', border: '1px solid cyan',
+                        borderRadius: '0.5em', marginTop: '0.5em', marginRight: '1em',
+                        marginLeft: '1em' }}>
+                        <div style={{ display: 'flex', marginTop: '0.5em' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '1em', cursor: 'pointer' }}
+                                onClick={() => navigateToQuotedPost()}>
+                                <div style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
+                                    <img src="" width={20} height={20} style={{ borderRadius: '50%', margin: '0.5em' }} />
+                                    <span>{post?.quotedPost.author.displayName}</span>
+                                    <span> {" @"}{post?.quotedPost.author.userName}</span>
+                                    <span> {" "}{getTimeSinceString(post.quotedPost)}</span>
+                                </div>
+                                <span style={{ marginLeft: '0.5em' }}>{post?.quotedPost.text}</span>
+                            </div>
+                        </div>
+                    </div>
+                    : null}
+                    
                     
                     <div style={{ display: 'flex', flexDirection: 'row', 
                         marginLeft: '1em', marginTop: '1em', justifyContent: "space-between" }}>
@@ -146,12 +172,12 @@ export const PostCard = ({ post }: PostProps) => {
                         <div style={{ flex: '1 1 0%', alignItems: 'flex-start' }}>
                             <button style={{ display: 'flex', backgroundColor: '#242424', 
                                 textAlign: 'center', flexDirection: 'row', justifyContent: 'center', 
-                                alignItems: 'center'
-                                    }}>
+                                alignItems: 'center' }}
+                                onClick={() => setShowQuoteModal(true)}>
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     repeat
                                 </i>
-                                <span style={{ marginLeft: '0.2em' }}> {uPost.repostCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}> {uPost.repostCount+uPost.quoteCount} </span>
                             </button>
                         </div>
 
@@ -177,8 +203,13 @@ export const PostCard = ({ post }: PostProps) => {
             </div>
             {showModal
                 ? <div>
-                    <NewPostModal post={post != null ? post : undefined} setShowModal={setShowModal}
+                    <ReplyModal post={post != null ? post : undefined} setShowModal={setShowModal}
                         addToPostReplies={addToPostReplies} />
+                  </div>
+                : null}
+            {showQuoteModal
+                ? <div>
+                    <QuoteModal post={post != null ? post : undefined} setShowQuoteModal={setShowQuoteModal} />
                   </div>
                 : null}
         </div>

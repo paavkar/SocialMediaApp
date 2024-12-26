@@ -390,7 +390,7 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<List<PostDTO>> GetUserPostsAsync(string userId)
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p WHERE p.author.id = @UserId ORDER BY p.createdAt DESC")
+                ("SELECT * FROM Posts p WHERE p.author.id = @UserId AND p.parentPost = null ORDER BY p.createdAt DESC")
                 .WithParameter("@UserId", userId);
 
             var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
@@ -427,6 +427,21 @@ namespace SocialMediaApp.Server.CosmosDb
                     patchOperations: new[]
                     {
                         PatchOperation.Replace("/replyCount", parentPost.ReplyCount)
+                    });
+            }
+
+            if (post.QuotedPost is not null)
+            {
+                var quotedPost = await GetPostByIdAsync(post.QuotedPost.Id!, post.QuotedPost.Author.Id);
+                quotedPost.QuoteCount++;
+                post.QuotedPost.QuoteCount = quotedPost.QuoteCount;
+
+                await PostContainer.PatchItemAsync<Post>(
+                    quotedPost.Id,
+                    new PartitionKey(quotedPost.PartitionKey),
+                    patchOperations: new[]
+                    {
+                        PatchOperation.Replace("/quoteCount", quotedPost.QuoteCount),
                     });
             }
 
