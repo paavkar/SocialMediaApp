@@ -63,11 +63,11 @@ export const NewPostModal = ({ post, setShowModal, addToPostReplies }: PostProps
 
 return (
     <div style={{ display: 'block', position: 'fixed', zIndex: 1, left: 0, top: 0, 
-                  width: '100%', height: '100%', overflow: 'auto', backgroundColor: `rgba(0,0,0,0.4)`
-                            }}>
+                width: '100%', height: '100%', overflow: 'auto', 
+                backgroundColor: `rgba(0,0,0,0.4)` }}>
         
-        <div style={{ backgroundColor: '#242424', margin: '15% auto', padding: '20px', border: '1px solid #888',
-            width: '30%', height: 'auto' }}>
+        <div style={{ backgroundColor: '#242424', margin: '15em auto', padding: '20px', border: '1px solid #888',
+            width: '30%', height: 'auto', borderRadius: '0.5em' }}>
             <div style={{ display: 'flex', flexDirection: 'row', borderBottom: '1px solid cyan' }}>
                 <div>
                     <img src="" width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} /> 
@@ -96,7 +96,7 @@ return (
                         </button>
 
                         <button type="button"
-                            style={{ margin: '1em 0em 0.5em 0.5em', backgroundColor: 'green',
+                            style={{ margin: '1em 0em 0.5em 0.5em', backgroundColor: 'red',
                             height: '2em', width: '4em' }} onClick={() => setShowModal(false)}>
                             Cancel
                         </button>

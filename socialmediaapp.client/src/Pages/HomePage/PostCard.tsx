@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setUser } from "../../state";
+import { NewPostModal } from "./NewPostModal";
 
 type PostProps = {
     post: Post;
@@ -13,6 +14,7 @@ type PostProps = {
 export const PostCard = ({ post }: PostProps) => {
     const [currentDate, _setCurrentDate] = useState<Date>(new Date())
     const [uPost, setUPost] = useState(post)
+    const [showModal, setShowModal] = useState(false)
     const token = useSelector<RootState, string | null>((state) => state.token);
     const user = useSelector<RootState, User | null>((state) => state.user);
     
@@ -92,6 +94,10 @@ export const PostCard = ({ post }: PostProps) => {
         return `${Math.floor(seconds)} seconds ago`
     }
 
+    function addToPostReplies(reply: Post) {
+        post?.replies.push(reply)
+    }
+
     return (
         <div key={uPost.id} style={{ display: "flex", flexDirection: "row", width: '100%', 
             height: 'auto', borderBottom: "1px solid cyan", padding: "1em", paddingRight: "0em",
@@ -128,8 +134,8 @@ export const PostCard = ({ post }: PostProps) => {
                         <div style={{ flex: '1 1 0%', alignItems: 'flex-start', marginLeft: '-6px' }}>
                             <button style={{ display: 'flex', backgroundColor: '#242424', 
                                 textAlign: 'center', flexDirection: 'row', justifyContent: 'center',
-                                alignItems: 'center'
-                                    }}>
+                                alignItems: 'center' }}
+                                onClick={() => setShowModal(true)}>
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     chat_bubble 
                                 </i>
@@ -169,6 +175,12 @@ export const PostCard = ({ post }: PostProps) => {
                     </div>
                 </div>
             </div>
+            {showModal
+                ? <div>
+                    <NewPostModal post={post != null ? post : undefined} setShowModal={setShowModal}
+                        addToPostReplies={addToPostReplies} />
+                  </div>
+                : null}
         </div>
     )
 }

@@ -331,7 +331,7 @@ namespace SocialMediaApp.Server.CosmosDb
         public async Task<List<PostDTO>> GetAllPostsAsync()
         {
             var parameterizedQuery = new QueryDefinition
-                ("SELECT * FROM Posts p ORDER BY p.createdAt DESC");
+                ("SELECT * FROM Posts p WHERE p.parentPost = null ORDER BY p.createdAt DESC");
 
             var posts = await GetPostsFromFeedIteratorAsync(parameterizedQuery);
 

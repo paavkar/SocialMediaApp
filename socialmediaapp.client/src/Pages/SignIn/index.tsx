@@ -71,7 +71,7 @@ export const SignIn = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }}
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }}
                         {...register("emailOrUserName")}
                         type="text" 
                         id="emailOrUserName"
@@ -89,7 +89,7 @@ export const SignIn = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }}
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }}
                             {...register("password")} 
                             type="password" 
                             id="password"

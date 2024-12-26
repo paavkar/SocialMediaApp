@@ -111,8 +111,12 @@ export const DetailedPostCard = () => {
                                     paddingTop: '0.5em', paddingBottom: '0.5em', fontSize: '0.9em' }}>
                                     <span>{getTimeString()}</span>
                                 </div>
-
-                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between',
+                                
+                                {(post.accountsLiked.length > 0
+                                    || post.quotes.length > 0
+                                    || post.accountsReposted.length > 0
+                                ? <div style={{ display: 'flex', flexDirection: 'row', 
+                                    justifyContent: 'space-between',
                                     flex: '1 1 0%', borderBottom: '1px solid cyan', marginRight: '1em' }}>
 
                                     {post?.accountsReposted?.length > 0
@@ -145,6 +149,8 @@ export const DetailedPostCard = () => {
                                         </div>
                                     : null }
                                 </div>
+                                : null)}
+                                
                                 
                                 <div style={{ display: 'flex', flexDirection: 'row', 
                                     marginTop: '1em', justifyContent: "space-between" }}>
@@ -152,8 +158,8 @@ export const DetailedPostCard = () => {
                                     <div style={{ flex: '1 1 0%', alignItems: 'flex-start'}}>
                                         <button style={{ display: 'flex', backgroundColor: '#242424', 
                                             textAlign: 'center', flexDirection: 'row', justifyContent: 'center',
-                                            alignItems: 'center'
-                                                }}>
+                                            alignItems: 'center' }}
+                                            onClick={() => setShowModal(true)}>
                                             <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                                 chat_bubble 
                                             </i>
@@ -201,7 +207,6 @@ export const DetailedPostCard = () => {
                         addToPostReplies={addToPostReplies} />
                   </div>
                 : null}
-                {showModal ? <div>show</div> : null}
 
                 <div style={{ borderBottom: '1px solid cyan', cursor: 'pointer' }}
                     onClick={() => setShowModal(true)}>
