@@ -1,6 +1,7 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 using System.Net;
 
 namespace SocialMediaApp.Server.CosmosDb
@@ -414,19 +415,23 @@ namespace SocialMediaApp.Server.CosmosDb
             post.AccountsReposted = [];
             post.PreviousVersions ??= [];
             post.Labels ??= [];
+            post.ReplyIds ??= [];
+            post.Replies ??= [];
 
             if (post.ParentPost is not null)
             {
                 var parentPost = await GetPostByIdAsync(post.ParentPost.Id!, post.ParentPost.Author.Id);
                 parentPost.ReplyCount++;
                 post.ParentPost.ReplyCount = parentPost.ReplyCount;
+                post.ParentPost.ReplyIds.Add(post.Id);
 
                 await PostContainer.PatchItemAsync<Post>(
                     parentPost.Id,
                     new PartitionKey(parentPost.PartitionKey),
                     patchOperations: new[]
                     {
-                        PatchOperation.Replace("/replyCount", parentPost.ReplyCount)
+                        PatchOperation.Replace("/replyCount", parentPost.ReplyCount),
+                        PatchOperation.Add("/replyIds/0", post.Id)
                     });
             }
 
@@ -606,6 +611,32 @@ namespace SocialMediaApp.Server.CosmosDb
                 patchOperations: new[]
                 {
                     PatchOperation.Replace("/bookmarkCount", post.BookmarkCount+1)
+                }
+            );
+
+            return response.Resource;
+        }
+
+        public async Task<Post> UpdatePostTextAsync(string postId, string userId, string text)
+        {
+            var post = await GetPostByIdAsync(postId, userId);
+
+            var response = await PostContainer.PatchItemAsync<Post>(
+                postId,
+                new PartitionKey(post.PartitionKey),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/text", text),
+                    PatchOperation.Replace("/likeCount", 0),
+                    PatchOperation.Replace("/repostCount", 0),
+                    PatchOperation.Replace("/quoteCount", 0),
+                    PatchOperation.Replace("/replyCount", 0),
+                    PatchOperation.Replace("/bookmarkCount", 0),
+                    PatchOperation.Replace("/createdAt", DateTimeOffset.UtcNow),
+                    PatchOperation.Replace("/accountsLiked", new List<Author>()),
+                    PatchOperation.Replace("/accountsReposted", new List<Author>()),
+                    PatchOperation.Replace("/replyIds", new List<string>()),
+                    PatchOperation.Add("/previousVersions/0", post)
                 }
             );
 

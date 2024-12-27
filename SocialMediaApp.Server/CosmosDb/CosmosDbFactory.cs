@@ -7,11 +7,6 @@ namespace SocialMediaApp.Server.CosmosDb
         public CosmosClient CosmosClient { get; set; }
         public string DatabaseName { get; set; }
 
-        private Container _container;
-        private Container _roleContainer;
-        private Container _roleAccountContainer;
-        private Container _postContainer;
-
         public CosmosDbFactory(IConfiguration configuration)
         {
             CosmosDbSettings settings = configuration

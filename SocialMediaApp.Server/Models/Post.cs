@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SocialMediaApp.Server.Models.DTOs;
 
 namespace SocialMediaApp.Server.Models
 {
@@ -21,6 +22,12 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "replyCount")]
         public int ReplyCount { get; set; }
+
+        [JsonProperty(PropertyName = "replyIds")]
+        public List<string> ReplyIds { get; set; }
+
+        [JsonProperty(PropertyName = "replies")]
+        public List<PostDTO> Replies { get; set; }
 
         [JsonProperty(PropertyName = "accountsLiked")]
         public List<Author>? AccountsLiked { get; set; }
@@ -74,6 +81,7 @@ namespace SocialMediaApp.Server.Models
                 RepostCount = this.RepostCount,
                 QuoteCount = this.QuoteCount,
                 ReplyCount = this.ReplyCount,
+                ReplyIds = this.ReplyIds,
                 AccountsLiked = this.AccountsLiked,
                 AccountsReposted = this.AccountsReposted,
                 CreatedAt = this.CreatedAt,

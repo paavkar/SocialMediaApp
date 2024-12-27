@@ -1,5 +1,6 @@
 ﻿using SocialMediaApp.Server.CosmosDb;
 using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 
 namespace SocialMediaApp.Server.Services
 {
@@ -22,28 +23,8 @@ namespace SocialMediaApp.Server.Services
         public async Task<PostDTO> GetPostByIdAsync(string id, string userId)
         {
             var post = await cosmosDbService.GetPostByIdAsync(id, userId);
-            var author = await cosmosDbService.GetUserByIdAsync(post.Author.Id);
 
-            var postDto = post.ToPostDTO(author);
-
-            var quotedPosts = await cosmosDbService.GetPostQuotesAsync(post.Id);
-            postDto.Quotes = quotedPosts;
-
-            var postReplies = await cosmosDbService.GetPostRepliesAsync(post.Id);
-            postDto.Replies = postReplies;
-
-            var reply = postDto;
-
-            while (reply.ParentPost != null)
-            {
-                postDto.Thread ??= [];
-                var parent = await cosmosDbService.GetPostByIdAsync(reply.ParentPost.Id, reply.ParentPost.Author.Id);
-                var parentAuthor = await cosmosDbService.GetUserByIdAsync(parent.Author.Id);
-
-                postDto.Thread.Add(parent.ToPostDTO(parentAuthor));
-
-                reply = parent.ToPostDTO(parentAuthor);
-            }
+            var postDto = await GetPostDTOAsync(post);
 
             return postDto;
         }
@@ -93,6 +74,81 @@ namespace SocialMediaApp.Server.Services
             }
 
             return userDto;
+        }
+
+        public async Task<PostDTO> UpdatePostTextAsync(string postId, string userId, string text)
+        {
+            var post = await cosmosDbService.UpdatePostTextAsync(postId, userId, text);
+
+            var postDto = await GetPostDTOAsync(post);
+
+            return postDto;
+        }
+
+        public async Task<PostDTO> GetPostDTOAsync(Post post)
+        {
+            if (post is null) return null;
+
+            var author = await cosmosDbService.GetUserByIdAsync(post.Author.Id);
+
+            var postDto = post.ToPostDTO(author);
+
+            var quotedPosts = await cosmosDbService.GetPostQuotesAsync(post.Id!);
+            postDto.Quotes = quotedPosts;
+
+            var postReplies = await cosmosDbService.GetPostRepliesAsync(post.Id!);
+
+            foreach (var postReply in postReplies)
+            {
+                if (postDto.ReplyIds.Any(p => p == postReply.Id))
+                {
+                    postDto.Replies.Add(postReply);
+                }
+
+                if (postDto.PreviousVersions.Count > 0)
+                {
+                    foreach (var previousVersion in postDto.PreviousVersions)
+                    {
+                        if (previousVersion.ReplyIds.Any(p => p == postReply.Id))
+                        {
+                            previousVersion.Replies.Add(postReply);
+                        }
+                    }
+                }
+            }
+
+            var reply = postDto;
+            PostDTO authorReply = null;
+
+            if (postReplies.Any(r => r.ParentPost!.Author.Id == post.Author.Id))
+            {
+                postDto.AuthorThread ??= [];
+                authorReply = postReplies.First(r => r.ParentPost!.Id == post.Id);
+            }
+
+            while (reply.ParentPost != null)
+            {
+                postDto.Thread ??= [];
+                var parent = await cosmosDbService.GetPostByIdAsync(reply.ParentPost.Id!, reply.ParentPost.Author.Id);
+                var parentAuthor = await cosmosDbService.GetUserByIdAsync(parent.Author.Id);
+
+                postDto.Thread.Add(parent.ToPostDTO(parentAuthor));
+
+                reply = parent.ToPostDTO(parentAuthor);
+            }
+
+            while (authorReply != null)
+            {
+                postDto.AuthorThread.Add(authorReply);
+                var replyReplies = await cosmosDbService.GetPostRepliesAsync(authorReply.Id!);
+
+                if (replyReplies.Any(r => r.ParentPost!.Id == authorReply.Id))
+                    authorReply = replyReplies.First(r => r.ParentPost!.Id == authorReply.Id);
+                else
+                    authorReply = null;
+            }
+
+            return postDto;
         }
     }
 }

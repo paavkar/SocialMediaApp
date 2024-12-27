@@ -165,7 +165,11 @@ export const PostCard = ({ post }: PostProps) => {
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     chat_bubble 
                                 </i>
-                                <span style={{ marginLeft: '0.2em' }}> {uPost.replyCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}>
+                                    {uPost.replyCount >= 1000
+                                    ? uPost.replyCount/1000+"k"
+                                    : uPost.replyCount}
+                                </span>
                             </button>
                         </div>
 
@@ -177,7 +181,11 @@ export const PostCard = ({ post }: PostProps) => {
                                 <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                     repeat
                                 </i>
-                                <span style={{ marginLeft: '0.2em' }}> {uPost.repostCount+uPost.quoteCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}>
+                                    {uPost.repostCount+uPost.quoteCount >= 1000
+                                    ? (uPost.repostCount+uPost.quoteCount)/1000+"k"
+                                    : uPost.repostCount+uPost.quoteCount}
+                                </span>
                             </button>
                         </div>
 
@@ -195,7 +203,11 @@ export const PostCard = ({ post }: PostProps) => {
                                 </i>
                                 }
                                 
-                                <span style={{ marginLeft: '0.2em' }}> {uPost.likeCount} </span>
+                                <span style={{ marginLeft: '0.2em' }}>
+                                    {uPost.likeCount >= 1000
+                                    ? uPost.likeCount/1000+"k"
+                                    : uPost.likeCount}
+                                </span>
                             </button>
                         </div>
                     </div>

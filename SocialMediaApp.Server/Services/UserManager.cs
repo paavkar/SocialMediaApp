@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using SocialMediaApp.Server.CosmosDb;
 using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 
 namespace SocialMediaApp.Server.Services
 {

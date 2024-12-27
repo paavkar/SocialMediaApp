@@ -5,6 +5,7 @@ export interface AccountSettings {
 
 export interface Author {
     id: string;
+    profilePicture: string;
     displayName: string;
     description: string;
     userName: string;
@@ -61,6 +62,7 @@ export interface Post {
     quotes: Post[];
     replies: Post[];
     thread: Post[];
+    authorThread: Post[];
     createdAt: Date;
     author: Author;
     labels: string[];
@@ -78,6 +80,7 @@ export interface Post {
 
 export interface User {
     id: string;
+    profilePicture: string;
     displayName: string;
     description: string;
     userName: string;

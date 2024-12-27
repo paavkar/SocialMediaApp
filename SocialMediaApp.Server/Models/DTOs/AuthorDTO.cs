@@ -1,4 +1,4 @@
-﻿namespace SocialMediaApp.Server.Models
+﻿namespace SocialMediaApp.Server.Models.DTOs
 {
     public class AuthorDTO : Author
     {

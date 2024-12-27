@@ -26,15 +26,21 @@ export const HomePage = () => {
         }
     }
 
+    function addToPosts(post: Post) {
+        let postsReversed = posts.reverse()
+        postsReversed.push(post)
+        postsReversed = postsReversed.reverse()
+        setPosts(postsReversed)
+    }
+
     useEffect(() => {
         fetchPosts();
     }, [])
 
-
     return (
         <Layout>
             <div>
-                <NewPost />
+                <NewPost addToPosts={addToPosts} />
             </div>
             <div style={{ marginRight: "1em" }}>
                 {posts.map((post) => {

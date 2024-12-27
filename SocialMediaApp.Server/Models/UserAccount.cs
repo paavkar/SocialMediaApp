@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SocialMediaApp.Server.Models.DTOs;
 
 namespace SocialMediaApp.Server.Models
 {
@@ -6,6 +7,9 @@ namespace SocialMediaApp.Server.Models
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; } = Guid.CreateVersion7().ToString();
+
+        [JsonProperty(PropertyName = "profilePicture")]
+        public string ProfilePicture { get; set; }
 
         [JsonProperty(PropertyName = "displayName")]
         public string DisplayName { get; set; }
@@ -57,6 +61,7 @@ namespace SocialMediaApp.Server.Models
             return new UserDTO
             {
                 Id = this.Id,
+                ProfilePicture = this.ProfilePicture,
                 DisplayName = this.DisplayName,
                 Description = this.Description,
                 UserName = this.UserName,
@@ -74,6 +79,7 @@ namespace SocialMediaApp.Server.Models
             return new AuthorDTO
             {
                 Id = this.Id,
+                ProfilePicture = this.ProfilePicture,
                 DisplayName = this.DisplayName,
                 Description = this.Description,
                 UserName = this.UserName,

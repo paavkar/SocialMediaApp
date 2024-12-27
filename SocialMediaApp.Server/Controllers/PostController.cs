@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 using SocialMediaApp.Server.Services;
 using System.Security.Claims;
 
@@ -66,10 +67,13 @@ namespace SocialMediaApp.Server.Controllers
         public async Task<IActionResult> GetPost(string userName, string postId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
-            //if (String.IsNullOrEmpty(userId))
-            //    return Unauthorized(new { Message = "No valid token given with request." });
-
             var user = await userManager.GetUserByUserNameAsync(userName);
+
+            if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "This user requires sign-in to view their profile." });
+            if (user.Id != userId && user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
+                return Unauthorized(new { Message = "This user's profile is private." });
+
             var post = await postsService.GetPostByIdAsync(postId, user.Id);
 
             if (post is null)
@@ -145,15 +149,31 @@ namespace SocialMediaApp.Server.Controllers
         }
 
         [HttpPatch("bookmark-post/{postId}")]
-        public async Task<IActionResult> BookmarkPost(string postId, [FromBody] string postUserId)
+        public async Task<IActionResult> BookmarkPost(string postId, [FromBody] string postAuthorId)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
             if (String.IsNullOrEmpty(userId))
                 return Unauthorized(new { Message = "No valid token given with request." });
 
-            var updatedUser = await postsService.BookmarkPost(postId, postUserId, userId);
+            var updatedUser = await postsService.BookmarkPost(postId, postAuthorId, userId);
 
             return Ok(updatedUser);
+        }
+
+        [HttpPatch("update-post/{postId}")]
+        public async Task<IActionResult> UpdatePost(string postId, [FromBody] PostUpdateDTO postUpdate)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            if (userId != postUpdate.AuthorId)
+                return Unauthorized(new { Message = "You are not authorized to update this post." });
+
+            var updatedPost = await postsService.UpdatePostTextAsync(postId, postUpdate.AuthorId, postUpdate.PostText);
+
+            return Ok(updatedPost);
         }
     }
 }

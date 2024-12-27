@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Azure;
 using Microsoft.IdentityModel.Tokens;
 using SocialMediaApp.Server.CosmosDb;
 using SocialMediaApp.Server.Services;
@@ -33,6 +34,12 @@ builder.Services.AddHostedService<ChangeFeedService>();
 // Purpose of this is to create the database and containers if they don't exist yet
 var f = new CosmosDbFactory(builder.Configuration);
 await f.InitializeDatabase();
+builder.Services.AddAzureClients(clientBuilder =>
+{
+    clientBuilder.AddBlobServiceClient(builder.Configuration["StorageConnection:blobServiceUri"]!).WithName("StorageConnection");
+    clientBuilder.AddQueueServiceClient(builder.Configuration["StorageConnection:queueServiceUri"]!).WithName("StorageConnection");
+    clientBuilder.AddTableServiceClient(builder.Configuration["StorageConnection:tableServiceUri"]!).WithName("StorageConnection");
+});
 
 var app = builder.Build();
 

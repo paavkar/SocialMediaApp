@@ -1,4 +1,5 @@
 ﻿using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 
 namespace SocialMediaApp.Server.CosmosDb
 {
@@ -30,5 +31,6 @@ namespace SocialMediaApp.Server.CosmosDb
         Task<object> LikePostAsync(string id, string userId, string postUserId);
         Task<List<Post>> GetMatchingPostsAsync(string searchTerm);
         Task<UserAccount> BookmarkPost(string postId, string postUserId, string userId);
+        Task<Post> UpdatePostTextAsync(string postId, string userId, string text);
     }
 }

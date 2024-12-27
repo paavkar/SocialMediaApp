@@ -4,7 +4,7 @@ import { RootState } from "../../state";
 import { z } from "zod";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Author } from "../../types";
+import { Author, Post } from "../../types";
 import { useNavigate } from "react-router-dom";
 
 const Schema = z.object({
@@ -14,7 +14,11 @@ const Schema = z.object({
     embed: z.custom<Embed>()
 })
 
-export const NewPost = () => {
+interface NewPostProps {
+    addToPosts: (post: Post) => void
+}
+
+export const NewPost = ({ addToPosts }: NewPostProps) => {
     const user = useSelector<RootState, User | null>((state) => state.user);
     const token = useSelector<RootState, string | null>((state) => state.token);
     
@@ -48,7 +52,8 @@ export const NewPost = () => {
 
         if (response.ok) {
             reset()
-            navigate("/")
+            var postResponse = await response.json()
+            addToPosts(postResponse.createdPost)
         }
     }
 

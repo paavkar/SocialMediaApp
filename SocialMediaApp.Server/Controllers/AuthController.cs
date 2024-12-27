@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 using SocialMediaApp.Server.Services;
 
 namespace SocialMediaApp.Server.Controllers

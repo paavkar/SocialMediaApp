@@ -244,7 +244,11 @@ export const DetailedPostCard = () => {
                                             <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                                 chat_bubble 
                                             </i>
-                                            <span style={{ marginLeft: '0.2em' }}> {post!.replyCount} </span>
+                                            <span style={{ marginLeft: '0.2em' }}>
+                                                {post.replyCount >= 1000
+                                                ? post.replyCount/1000+"k"
+                                                : post.replyCount}
+                                            </span>
                                         </button>
                                     </div>
 
@@ -256,8 +260,11 @@ export const DetailedPostCard = () => {
                                             <i style={{ fontSize: '1.3em' }} className="material-symbols-outlined">
                                                 repeat
                                             </i>
+
                                             <span style={{ marginLeft: '0.2em' }}>
-                                                {post!.repostCount+post.quoteCount}
+                                                {post!.repostCount+post.quoteCount >= 1000
+                                                ? (post!.repostCount+post.quoteCount)/1000+"k"
+                                                : post!.repostCount+post.quoteCount}
                                             </span>
                                         </button>
                                     </div>
@@ -276,7 +283,11 @@ export const DetailedPostCard = () => {
                                             </i>
                                             }
                                             
-                                            <span style={{ marginLeft: '0.2em' }}> {post!.likeCount} </span>
+                                            <span style={{ marginLeft: '0.2em' }}>
+                                                {post.likeCount >= 1000
+                                                ? post.likeCount/1000+"k"
+                                                : post.likeCount}
+                                            </span>
                                         </button>
                                     </div>
                                 </div>
