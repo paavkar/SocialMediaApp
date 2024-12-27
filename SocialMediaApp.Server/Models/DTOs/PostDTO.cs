@@ -24,6 +24,7 @@
         public List<Post>? PreviousVersions { get; set; }
         public int BookmarkCount { get; set; }
         public bool IsPinned { get; set; } = false;
+        public Embed Embed { get; set; }
         public string? PartitionKey { get; set; }
     }
 }

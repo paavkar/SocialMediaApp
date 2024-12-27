@@ -15,8 +15,8 @@ export interface Author {
 
 export interface Embed {
     embedType: EmbedType;
-    images?: Media[];
-    videos?: Media[];
+    images: Media[];
+    videos: Media[];
     externalLink?: ExternalLink;
 }
 
@@ -29,6 +29,7 @@ export interface ExternalLink {
     externalLinkUri: string;
     externalLinkTitle: string;
     externalLinkDescription: string;
+    externalLinkThumbnail: string;
 }
 
 export enum EmbedType {

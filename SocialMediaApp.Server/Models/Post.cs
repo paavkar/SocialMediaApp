@@ -24,10 +24,10 @@ namespace SocialMediaApp.Server.Models
         public int ReplyCount { get; set; }
 
         [JsonProperty(PropertyName = "replyIds")]
-        public List<string> ReplyIds { get; set; }
+        public List<string>? ReplyIds { get; set; }
 
         [JsonProperty(PropertyName = "replies")]
-        public List<PostDTO> Replies { get; set; }
+        public List<PostDTO>? Replies { get; set; }
 
         [JsonProperty(PropertyName = "accountsLiked")]
         public List<Author>? AccountsLiked { get; set; }
@@ -63,7 +63,7 @@ namespace SocialMediaApp.Server.Models
         public bool IsPinned { get; set; } = false;
 
         [JsonProperty(PropertyName = "embed")]
-        public Embed? Embed { get; set; }
+        public Embed Embed { get; set; }
 
         [JsonProperty(PropertyName = "partitionKey")]
         public string? PartitionKey { get; set; }
@@ -93,6 +93,7 @@ namespace SocialMediaApp.Server.Models
                 PreviousVersions = this.PreviousVersions,
                 BookmarkCount = this.BookmarkCount,
                 IsPinned = this.IsPinned,
+                Embed = this.Embed,
                 PartitionKey = this.PartitionKey
             };
         }

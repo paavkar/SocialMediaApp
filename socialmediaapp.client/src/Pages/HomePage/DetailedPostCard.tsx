@@ -124,6 +124,17 @@ export const DetailedPostCard = () => {
         navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
     }
 
+    function getLink(url: string) {
+        const elements = post?.text.split(url)
+
+        return (
+            <div>
+                <span>{elements?.at(0)}</span>
+                <a href={post?.embed.externalLink?.externalLinkUri} target="_blank">{post?.embed.externalLink?.externalLinkUri}</a>
+            </div>
+        )
+    }
+
     useEffect(() => {
         {post === null
             ? fetchPost()
@@ -159,10 +170,35 @@ export const DetailedPostCard = () => {
                                     </div>
                                 </div>
                                 <div style={{ flex: "1 1 0%", width: "auto" }}>
-                                    <div style={{ flex: "1 1 0%", width: "auto" }}>
-                                    <div style={{ marginTop: '1em', flex: "1 1 0%", width: "auto" }}>
-                                        {post!.text}
-                                    </div>
+                                    <div style={{ flex: "1 1 0%", width: "auto", marginRight: '1em' }}>
+                                        <div style={{ marginTop: '1em', flex: "1 1 0%", width: "auto",
+                                            marginBottom: '1em'
+                                         }}>
+                                            {getLink(post.embed.externalLink?.externalLinkUri!)}
+                                        </div>
+                                        {post?.embed.externalLink
+                                        ? 
+                                        <div style={{ border: '1px solid #6B7575', borderRadius: '0.5em',
+                                            width: '100%' }}>
+                                            <div style={{ borderBottom: '1px solid #6B7575' }}>
+                                                <a href={post?.embed.externalLink.externalLinkUri}
+                                                target="_blank">
+                                                    <img src={post?.embed.externalLink.externalLinkThumbnail} 
+                                                    style={{ width: '100%', borderRadius: '0.5em' }} />
+                                                </a>
+                                            </div>
+                                            <div style={{ borderBottom: '1px solid #6B7575', marginLeft: '0.5em', 
+                                                marginRight: '0.5em' }}>
+                                                <span style={{ width: '1em', fontWeight: 'bold' }}>
+                                                    {post?.embed.externalLink.externalLinkTitle}
+                                                </span>
+                                                <hr />
+                                                <span style={{ fontWeight: 'lighter' }}>
+                                                    {post?.embed.externalLink.externalLinkDescription}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        : null}
                                     </div>
                                 </div>
 

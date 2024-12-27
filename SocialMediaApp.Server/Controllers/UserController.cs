@@ -28,6 +28,7 @@ namespace SocialMediaApp.Server.Controllers
                     User = new Author()
                     {
                         Id = user.Id,
+                        ProfilePicture = user.ProfilePicture,
                         DisplayName = user.DisplayName,
                         Description = user.Description,
                         UserName = user.UserName

@@ -12,5 +12,8 @@ namespace SocialMediaApp.Server.Models
 
         [JsonProperty(PropertyName = "externalLinkDescription")]
         public string? ExternalLinkDescription { get; set; }
+
+        [JsonProperty(PropertyName = "externalLinkThumbnail")]
+        public string? ExternalLinkThumbnail { get; set; }
     }
 }

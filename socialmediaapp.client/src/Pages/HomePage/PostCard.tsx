@@ -104,6 +104,17 @@ export const PostCard = ({ post }: PostProps) => {
         navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
     }
 
+    function getLink(url: string) {
+        const elements = uPost.text.split(url)
+
+        return (
+            <div>
+                <span>{elements.at(0)}</span>
+                <a href={uPost.embed.externalLink?.externalLinkUri} target="_blank">{uPost.embed.externalLink?.externalLinkUri}</a>
+            </div>
+        )
+    }
+
     return (
         <div key={uPost.id} style={{ display: "flex", flexDirection: "row", width: '100%', 
             height: 'auto', borderBottom: "1px solid cyan", padding: "1em", paddingRight: "0em",
@@ -126,12 +137,44 @@ export const PostCard = ({ post }: PostProps) => {
                             {" "}{getTimeSinceString(post)}
                         </span>
                     </div>
-                    <div style={{ flex: "1 1 0%", width: "auto", cursor: 'pointer' }} 
-                        onClick={() => navigate(`/profile/${uPost.author.userName}/post/${uPost.id}`)}>
-                        <div style={{ flex: "1 1 0%", width: "auto" }}>
-                            <div style={{ marginLeft: '1em', marginTop: '1em', flex: "1 1 0%", width: "auto" }}>
-                                {uPost.text}</div>
+                    <div style={{ flex: "1 1 0%", width: "auto", cursor: 'pointer' }} >
+                        <div style={{ flex: "1 1 0%", width: "auto", paddingRight: '2em' }}>
+                            <div style={{ marginLeft: '1em', marginTop: '1em', flex: "1 1 0%", width: "auto",
+                                marginBottom: '1em'
+                             }}>
+                                <a style={{ color: '#E3E3E3', fontWeight: "normal"}} 
+                                    href={`/profile/${uPost.author.userName}/post/${uPost.id}`} target="_blank">
+                                    {uPost.embed.externalLink
+                                    ? getLink(uPost.embed.externalLink.externalLinkUri)
+                                    : uPost.text}
+                                </a>
                             </div>
+                            {uPost.embed.externalLink
+                                ? 
+                                <div style={{ marginLeft: '1em', border: '1px solid #6B7575', borderRadius: '0.5em',
+                                    width: '100%'
+                                 }}>
+                                    <div style={{ borderBottom: '1px solid #6B7575' }}>
+                                        <a href={uPost.embed.externalLink.externalLinkUri}
+                                        target="_blank">
+                                            <img src={uPost.embed.externalLink.externalLinkThumbnail} 
+                                            style={{ width: '100%', borderRadius: '0.5em' }} />
+                                        </a>
+                                    </div>
+                                    <div style={{  
+                                        borderBottom: '1px solid #6B7575', marginLeft: '0.5em', 
+                                        marginRight: '0.5em' }}>
+                                        <span style={{ width: '1em', fontWeight: 'bold' }}>
+                                            {uPost.embed.externalLink.externalLinkTitle}
+                                        </span>
+                                        <hr />
+                                        <span style={{ fontWeight: 'lighter' }}>
+                                            {uPost.embed.externalLink.externalLinkDescription}
+                                        </span>
+                                    </div>
+                                </div>
+                                : null}
+                        </div>
                     </div>
                     
                     {post.quotedPost

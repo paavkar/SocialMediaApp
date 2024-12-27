@@ -30,19 +30,51 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
                 text: "",
                 author: {
                     id: user?.id,
+                    profilePicture: "",
                     displayName: user?.displayName,
                     description: user?.description,
                     userName: user?.userName,
                 },
                 langs: ["en"],
                 embed: {
-                    embedType: EmbedType.None
+                    embedType: EmbedType.None,
                 },
                 parentPost: post
             }
         })
 
     async function onSubmit(values: z.infer<typeof Schema>) {
+        if (values.text.includes("https://")) {
+            values.embed.embedType = EmbedType.ExternalLink
+
+            const indexOfLink = values.text.indexOf("https://")
+            const indexOfSpace = values.text.indexOf(" ", indexOfLink)
+            let url = values.text.substring(indexOfLink)
+
+            if (indexOfSpace != -1) {
+                url = values.text.substring(indexOfLink, indexOfSpace)
+            }
+
+            const indexOfComma = url.indexOf(",")
+            if (indexOfComma != -1) {
+                url = url.substring(0, indexOfComma)
+            }
+            
+            // const indexOfPeriod = url.indexOf(".", url.length)
+            // if (indexOfPeriod != -1) {
+            //     url = url.substring(0, indexOfPeriod)
+            // }
+
+            values.embed.externalLink = {
+                externalLinkDescription: "",
+                externalLinkTitle: "",
+                externalLinkUri: url,
+                externalLinkThumbnail: ""
+            }
+        }
+
+        values.parentPost.replies = []
+
         var response = await fetch("/api/Post/post", {
             method: "POST",
             body: JSON.stringify(values),

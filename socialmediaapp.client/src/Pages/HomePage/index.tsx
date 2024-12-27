@@ -48,7 +48,7 @@ export const HomePage = () => {
                         <PostCard post={post} />
                     )
                 })}
-            </div> 
+            </div>
         </Layout>
     )
 }

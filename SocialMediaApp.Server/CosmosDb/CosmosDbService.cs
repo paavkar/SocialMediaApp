@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using HtmlAgilityPack;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using SocialMediaApp.Server.Models;
 using SocialMediaApp.Server.Models.DTOs;
@@ -417,6 +418,31 @@ namespace SocialMediaApp.Server.CosmosDb
             post.Labels ??= [];
             post.ReplyIds ??= [];
             post.Replies ??= [];
+
+            if (post.Embed.EmbedType == Enums.EmbedType.ExternalLink)
+            {
+                HttpClient client = new HttpClient();
+                string html = await client.GetStringAsync(post.Embed.ExternalLink.ExternalLinkUri);
+                HtmlDocument doc = new();
+                doc.LoadHtml(html);
+
+                var title = doc.DocumentNode.SelectSingleNode("//title").InnerText;
+                var metaDescription = doc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+                if (metaDescription != null)
+                {
+                    string desc = metaDescription.Attributes["content"].Value;
+                    post.Embed.ExternalLink.ExternalLinkDescription = desc;
+                }
+                var metaImage = doc.DocumentNode.SelectSingleNode("//meta[@property='og:image']");
+
+                if (metaImage != null)
+                {
+                    string thumbnailUrl = metaImage.Attributes["content"].Value;
+                    post.Embed.ExternalLink.ExternalLinkThumbnail = thumbnailUrl;
+                }
+
+                post.Embed.ExternalLink.ExternalLinkTitle = title;
+            }
 
             if (post.ParentPost is not null)
             {
