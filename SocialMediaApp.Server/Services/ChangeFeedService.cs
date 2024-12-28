@@ -104,6 +104,7 @@ namespace SocialMediaApp.Server.Services
                                 follower.DisplayName = user.DisplayName;
                                 follower.UserName = user.UserName;
                                 follower.Description = user.Description;
+                                follower.ProfilePicture = user.ProfilePicture;
                             }
                         }
 
@@ -114,6 +115,7 @@ namespace SocialMediaApp.Server.Services
                                 following.DisplayName = user.DisplayName;
                                 following.UserName = user.UserName;
                                 following.Description = user.Description;
+                                following.ProfilePicture = user.ProfilePicture;
                             }
                         }
                         await UserContainer.PatchItemAsync<UserAccount>(userToUpdate.Id, new PartitionKey("User"),
@@ -134,6 +136,7 @@ namespace SocialMediaApp.Server.Services
                                 bookmark.Author.DisplayName = user.DisplayName;
                                 bookmark.Author.UserName = user.UserName;
                                 bookmark.Author.Description = user.Description;
+                                bookmark.Author.ProfilePicture = user.ProfilePicture;
                             }
                         }
                         await UserContainer.PatchItemAsync<UserAccount>(userToUpdate.Id, new PartitionKey("User"),
@@ -151,7 +154,8 @@ namespace SocialMediaApp.Server.Services
                             {
                                 PatchOperation.Replace("/author/displayName", user.DisplayName),
                                 PatchOperation.Replace("/author/userName", user.UserName),
-                                PatchOperation.Replace("/author/description", user.Description)
+                                PatchOperation.Replace("/author/description", user.Description),
+                                PatchOperation.Replace("/author/profilePicture", user.ProfilePicture)
                             },
                             cancellationToken: cancellationToken);
                     }
@@ -163,7 +167,8 @@ namespace SocialMediaApp.Server.Services
                             {
                                 PatchOperation.Replace("/quotedPost/author/displayName", user.DisplayName),
                                 PatchOperation.Replace("/quotedPost/author/userName", user.UserName),
-                                PatchOperation.Replace("/quotedPost/author/description", user.Description)
+                                PatchOperation.Replace("/quotedPost/author/description", user.Description),
+                                PatchOperation.Replace("/quotedPost/author/profilePicture", user.ProfilePicture)
                             },
                             cancellationToken: cancellationToken);
                     }
@@ -175,7 +180,8 @@ namespace SocialMediaApp.Server.Services
                             {
                                 PatchOperation.Replace("/parentPost/author/displayName", user.DisplayName),
                                 PatchOperation.Replace("/parentPost/author/userName", user.UserName),
-                                PatchOperation.Replace("/parentPost/author/description", user.Description)
+                                PatchOperation.Replace("/parentPost/author/description", user.Description),
+                                PatchOperation.Replace("/parentPost/author/profilePicture", user.ProfilePicture)
                             },
                             cancellationToken: cancellationToken);
                     }

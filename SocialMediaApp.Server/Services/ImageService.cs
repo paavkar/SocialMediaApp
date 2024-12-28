@@ -24,7 +24,8 @@ namespace SocialMediaApp.Server.Services
                 new PartitionKey("User"),
                 patchOperations: new[]
                 {
-                    PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString())
+                    PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString()),
+                    PatchOperation.Replace("/changeFeed", true)
                 });
 
             return blobClient.Uri.ToString();
