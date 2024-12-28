@@ -125,14 +125,14 @@ export const PostCard = ({ post }: PostProps) => {
             }
         }
 
-        input.replace(urlRegex, (url, index) => { 
-             
-            if (index > lastIndex) { 
-                textParts.push(input.slice(lastIndex, index)); 
-            } 
-             
-            textParts.push(url); lastIndex = index + url.length; 
-            return url; 
+        input.replace(urlRegex, (url, index) => {
+            if (index > lastIndex) {
+                textParts.push(input.slice(lastIndex, index));
+            }
+            
+            textParts.push(url);
+            lastIndex = index + url.length;
+            return url;
         }); 
         
         if (lastIndex < input.length) { 

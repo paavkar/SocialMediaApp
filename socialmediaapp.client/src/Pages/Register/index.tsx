@@ -77,7 +77,7 @@ export const Register = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }}
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }}
                         {...register("email")}
                         type="email" 
                         id="email"
@@ -95,7 +95,7 @@ export const Register = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }} 
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }} 
                         {...register("userName")}
                         type="text" 
                         id="userName"
@@ -113,7 +113,7 @@ export const Register = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }} 
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }} 
                         {...register("displayName")}
                         type="text" 
                         id="displayName"
@@ -131,7 +131,7 @@ export const Register = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }} 
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }} 
                         {...register("password")}
                         type="password" 
                         id="password"
@@ -149,7 +149,7 @@ export const Register = () => {
                         </p>
                     )}
 
-                    <input style={{ width: '20em', height: '2em' }} 
+                    <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }} 
                         {...register("confirmPassword")}
                         type="password" 
                         id="confirmPassword"
@@ -158,7 +158,7 @@ export const Register = () => {
 
                     <button type="submit" 
                         disabled={isSubmitting} 
-                        style={{ marginTop: '1em', backgroundColor: 'green' }}>
+                        style={{ marginTop: '1em', backgroundColor: 'green', height: '2.5em' }}>
                         Register
                     </button>
                 </div>

@@ -61,8 +61,8 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
 
         if (urls.length > 0)
         {
+            values.embed.embedType = EmbedType.ExternalLink
             if (urls.length === 1) {
-                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",
@@ -71,7 +71,6 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
                 }
             }
             else {
-                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",

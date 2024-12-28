@@ -55,6 +55,7 @@ export const ProfilePage = () => {
     async function followUser() {
         var follower: Author = {
             id: loggedInUser!.id,
+            profilePicture: loggedInUser!.profilePicture,
             displayName: loggedInUser!.displayName,
             description: loggedInUser!.description,
             userName: loggedInUser!.userName
