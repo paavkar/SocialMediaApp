@@ -47,17 +47,21 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
         
         for (let word of words) {
             try {
+                if (!word.includes("http")) {
+                    continue
+                }
                 let potentialUrl = new URL(word)
                 let url = potentialUrl.href
                 urls.push(url)
             } catch (error) {
-                console.log(error)
+                
             }
         }
 
         if (urls.length > 0)
         {
             if (urls.length === 1) {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",
@@ -66,6 +70,7 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
                 }
             }
             else {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",

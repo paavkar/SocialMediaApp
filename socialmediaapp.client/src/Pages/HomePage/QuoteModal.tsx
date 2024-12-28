@@ -58,6 +58,7 @@ export const QuoteModal = ({ post, setShowQuoteModal }: PostProps) => {
         if (urls.length > 0)
         {
             if (urls.length === 1) {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",
@@ -66,6 +67,7 @@ export const QuoteModal = ({ post, setShowQuoteModal }: PostProps) => {
                 }
             }
             else {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",

@@ -104,13 +104,53 @@ export const PostCard = ({ post }: PostProps) => {
         navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
     }
 
-    function getLink(url: string) {
-        const elements = uPost.text.split(url)
+    function getTextWithLinks() {
+        let words = uPost.text.split(/\s+/)
+        let urls: string[] = []
+        const input = uPost.text
+        let textParts: string[] = []
+        const urlRegex = /https?:\/\/[^\s]+/g;
+        let lastIndex = 0
+
+        for (let word of words) {
+            try {
+                if (!word.includes("http")) {
+                    continue
+                }
+                let potentialUrl = new URL(word)
+                let url = potentialUrl.href
+                urls.push(url)
+            } catch (error) {
+                
+            }
+        }
+
+        input.replace(urlRegex, (url, index) => { 
+             
+            if (index > lastIndex) { 
+                textParts.push(input.slice(lastIndex, index)); 
+            } 
+             
+            textParts.push(url); lastIndex = index + url.length; 
+            return url; 
+        }); 
+        
+        if (lastIndex < input.length) { 
+            textParts.push(input.slice(lastIndex)); 
+        }
 
         return (
             <div>
-                <span>{elements.at(0)}</span>
-                <a href={uPost.embed.externalLink?.externalLinkUri} target="_blank">{uPost.embed.externalLink?.externalLinkUri}</a>
+                {textParts.map((part) => {
+                    return (
+                        <>
+                        {urls.includes(part)
+                            ? <a href={part} target="_blank">{part}</a>
+                            : <span>{part}</span>
+                        }
+                        </>
+                    )
+                })}
             </div>
         )
     }
@@ -140,20 +180,17 @@ export const PostCard = ({ post }: PostProps) => {
                     <div style={{ flex: "1 1 0%", width: "auto", cursor: 'pointer' }} >
                         <div style={{ flex: "1 1 0%", width: "auto", paddingRight: '2em' }}>
                             <div style={{ marginLeft: '1em', marginTop: '1em', flex: "1 1 0%", width: "auto",
-                                marginBottom: '1em'
-                             }}>
-                                <a style={{ color: '#E3E3E3', fontWeight: "normal"}} 
-                                    href={`/profile/${uPost.author.userName}/post/${uPost.id}`} target="_blank">
+                                marginBottom: '1em' }}>
+                                <span onClick={() => navigate(`/profile/${post.author.userName}/post/${post.id}`)}>
                                     {uPost.embed.externalLink
-                                    ? getLink(uPost.embed.externalLink.externalLinkUri)
+                                    ? getTextWithLinks()
                                     : uPost.text}
-                                </a>
+                                </span>
                             </div>
                             {uPost.embed.externalLink
                                 ? 
                                 <div style={{ marginLeft: '1em', border: '1px solid #6B7575', borderRadius: '0.5em',
-                                    width: '100%'
-                                 }}>
+                                    width: '100%' }}>
                                     <div style={{ borderBottom: '1px solid #6B7575' }}>
                                         <a href={uPost.embed.externalLink.externalLinkUri}
                                         target="_blank">

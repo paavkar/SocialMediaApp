@@ -49,6 +49,9 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
         
         for (let word of words) {
             try {
+                if (!word.includes("http")) {
+                    continue
+                }
                 let potentialUrl = new URL(word)
                 urls.push(potentialUrl.href)
             } catch (error) {
@@ -59,6 +62,7 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
         if (urls.length > 0)
         {
             if (urls.length === 1) {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",
@@ -67,6 +71,7 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
                 }
             }
             else {
+                values.embed.embedType = EmbedType.ExternalLink
                 values.embed.externalLink = {
                     externalLinkDescription: "",
                     externalLinkTitle: "",

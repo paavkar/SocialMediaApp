@@ -45,7 +45,9 @@ export const HomePage = () => {
             <div style={{ marginRight: "1em" }}>
                 {posts.map((post) => {
                     return (
-                        <PostCard post={post} />
+                        <div key={post.id}>
+                            <PostCard post={post} />
+                        </div>
                     )
                 })}
             </div>

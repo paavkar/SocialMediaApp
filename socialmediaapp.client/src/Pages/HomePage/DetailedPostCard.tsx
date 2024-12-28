@@ -124,13 +124,53 @@ export const DetailedPostCard = () => {
         navigate(`/profile/${post?.quotedPost?.author.userName}/post/${post?.quotedPost?.id}`)
     }
 
-    function getLink(url: string) {
-        const elements = post?.text.split(url)
+    function getTextWithLinks() {
+        let words = post?.text.split(/\s+/)
+        let urls: string[] = []
+        const input = post?.text
+        let textParts: string[] = []
+        const urlRegex = /https?:\/\/[^\s]+/g;
+        let lastIndex = 0
+
+        for (let word of words!) {
+            try {
+                if (!word.includes("http")) {
+                    continue
+                }
+                let potentialUrl = new URL(word)
+                let url = potentialUrl.href
+                urls.push(url)
+            } catch (error) {
+                
+            }
+        }
+
+        input!.replace(urlRegex, (url, index) => { 
+             
+            if (index > lastIndex) { 
+                textParts.push(input!.slice(lastIndex, index)); 
+            } 
+             
+            textParts.push(url); lastIndex = index + url.length; 
+            return url; 
+        }); 
+        
+        if (lastIndex < input!.length) { 
+            textParts.push(input!.slice(lastIndex)); 
+        }
 
         return (
             <div>
-                <span>{elements?.at(0)}</span>
-                <a href={post?.embed.externalLink?.externalLinkUri} target="_blank">{post?.embed.externalLink?.externalLinkUri}</a>
+                {textParts.map((part) => {
+                    return (
+                        <>
+                        {urls.includes(part)
+                            ? <a href={part} target="_blank">{part}</a>
+                            : <span>{part}</span>
+                        }
+                        </>
+                    )
+                })}
             </div>
         )
     }
@@ -174,7 +214,7 @@ export const DetailedPostCard = () => {
                                         <div style={{ marginTop: '1em', flex: "1 1 0%", width: "auto",
                                             marginBottom: '1em'
                                          }}>
-                                            {getLink(post.embed.externalLink?.externalLinkUri!)}
+                                            {getTextWithLinks()}
                                         </div>
                                         {post?.embed.externalLink
                                         ? 
