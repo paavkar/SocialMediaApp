@@ -46,7 +46,7 @@ export const QuoteModal = ({ post, setShowQuoteModal }: PostProps) => {
         let words = values.text.split(" ")
         let urls: string[] = []
         
-        for (let word in words) {
+        for (let word of words) {
             try {
                 let potentialUrl = new URL(word)
                 urls.push(potentialUrl.href)
