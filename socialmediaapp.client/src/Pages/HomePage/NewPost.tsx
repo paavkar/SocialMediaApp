@@ -42,34 +42,39 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
     })
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-        if (values.text.includes("https://")) {
-            values.embed.embedType = EmbedType.ExternalLink
-
-            const indexOfLink = values.text.indexOf("https://")
-            const indexOfSpace = values.text.indexOf(" ", indexOfLink)
-            let url = values.text.substring(indexOfLink)
-
-            if (indexOfSpace != -1) {
-                url = values.text.substring(indexOfLink, indexOfSpace)
-            }
-
-            const indexOfComma = url.indexOf(",")
-            if (indexOfComma != -1) {
-                url = url.substring(0, indexOfComma)
-            }
-            
-            // const indexOfPeriod = url.indexOf(".", url.length)
-            // if (indexOfPeriod != -1) {
-            //     url = url.substring(0, indexOfPeriod)
-            // }
-
-            values.embed.externalLink = {
-                externalLinkDescription: "",
-                externalLinkTitle: "",
-                externalLinkUri: url,
-                externalLinkThumbnail: ""
+        let words = values.text.split(/\s+/)
+        let urls: string[] = []
+        
+        for (let word of words) {
+            try {
+                let potentialUrl = new URL(word)
+                let url = potentialUrl.href
+                urls.push(url)
+            } catch (error) {
+                console.log(error)
             }
         }
+
+        if (urls.length > 0)
+        {
+            if (urls.length === 1) {
+                values.embed.externalLink = {
+                    externalLinkDescription: "",
+                    externalLinkTitle: "",
+                    externalLinkUri: urls[0],
+                    externalLinkThumbnail: ""
+                }
+            }
+            else {
+                values.embed.externalLink = {
+                    externalLinkDescription: "",
+                    externalLinkTitle: "",
+                    externalLinkUri: urls[urls.length-1],
+                    externalLinkThumbnail: ""
+                }
+            }
+        }
+        console.log(values.embed.externalLink?.externalLinkUri)
         
         var response = await fetch("/api/Post/post", {
             method: "POST",

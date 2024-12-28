@@ -43,36 +43,42 @@ export const QuoteModal = ({ post, setShowQuoteModal }: PostProps) => {
         })
 
     async function onSubmit(values: z.infer<typeof Schema>) {
-        if (values.text.includes("https://")) {
-            values.embed.embedType = EmbedType.ExternalLink
-
-            const indexOfLink = values.text.indexOf("https://")
-            const indexOfSpace = values.text.indexOf(" ", indexOfLink)
-            let url = values.text.substring(indexOfLink)
-
-            if (indexOfSpace != -1) {
-                url = values.text.substring(indexOfLink, indexOfSpace)
+        let words = values.text.split(" ")
+        let urls: string[] = []
+        
+        for (let word in words) {
+            try {
+                let potentialUrl = new URL(word)
+                urls.push(potentialUrl.href)
+            } catch (error) {
+                
             }
+        }
 
-            const indexOfComma = url.indexOf(",")
-            if (indexOfComma != -1) {
-                url = url.substring(0, indexOfComma)
+        if (urls.length > 0)
+        {
+            if (urls.length === 1) {
+                values.embed.externalLink = {
+                    externalLinkDescription: "",
+                    externalLinkTitle: "",
+                    externalLinkUri: urls[0],
+                    externalLinkThumbnail: ""
+                }
             }
-            
-            // const indexOfPeriod = url.indexOf(".", url.length)
-            // if (indexOfPeriod != -1) {
-            //     url = url.substring(0, indexOfPeriod)
-            // }
-
-            values.embed.externalLink = {
-                externalLinkDescription: "",
-                externalLinkTitle: "",
-                externalLinkUri: url,
-                externalLinkThumbnail: ""
+            else {
+                values.embed.externalLink = {
+                    externalLinkDescription: "",
+                    externalLinkTitle: "",
+                    externalLinkUri: urls[urls.length-1],
+                    externalLinkThumbnail: ""
+                }
             }
         }
         
         values.quotedPost.replies = []
+        if (values.quotedPost.parentPost) {
+            values.quotedPost.parentPost.replies = []
+        }
 
         var response = await fetch("/api/Post/post", {
             method: "POST",
