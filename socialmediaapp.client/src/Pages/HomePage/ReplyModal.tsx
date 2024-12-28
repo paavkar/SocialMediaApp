@@ -107,7 +107,7 @@ return (
             width: '30%', height: 'auto', borderRadius: '0.5em' }}>
             <div style={{ display: 'flex', flexDirection: 'row', borderBottom: '1px solid cyan' }}>
                 <div>
-                    <img src="" width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} /> 
+                    <img src={post?.author.profilePicture} width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} /> 
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '1em' }}>
                     <span>{post?.author.displayName}</span>
@@ -117,7 +117,7 @@ return (
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1em', marginTop: '1em' }}>
                     <div style={{ display: 'flex', flexDirection: 'row' }}>
-                        <img src="" width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} />
+                        <img src={user?.profilePicture} width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} />
                         <textarea 
                             {...register("text")} 
                             style={{ width: '100%', backgroundColor: '#242424', border: 'none', resize: 'none',

@@ -6,6 +6,7 @@ import { User, Post, Author } from "../../types";
 import Layout from "../layout";
 import { PostCard } from "../HomePage/PostCard";
 import { useNavigate } from "react-router";
+import { EditProfile } from "./EditProfile";
 
 export const ProfilePage = () => {
     const { userName } = useParams()
@@ -16,6 +17,7 @@ export const ProfilePage = () => {
     const [user, setDisplayedUser] = useState<User>()
     const [userPosts, setUserPosts] = useState<Post[]>()
     const [activeTab, setActiveTab] = useState("")
+    const [showEdit, setShowEdit] = useState(false)
     const isAuth = Boolean(useSelector<RootState>((state) => state.token));
 
     async function fetchUser() {
@@ -87,14 +89,15 @@ export const ProfilePage = () => {
         else {
             navigate("/")
         }
+        console.log(user)
     }, [])
 
     return (
         <Layout>
             <div style={{ marginTop: '10em' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '1em' }}>
-                    <img src="" width={80} height={80} style={{ borderRadius: '1em'}} 
-                        title="Profile picture if the application supported them" />
+                    <img src={user?.profilePicture} width={80} height={80} style={{ borderRadius: '50%' }} 
+                         />
                     <div style={{ display: 'flex', flexDirection: 'row', 
                         justifyContent: 'space-between'}}>
                         <span style={{ marginTop: '0.5em', 
@@ -104,7 +107,7 @@ export const ProfilePage = () => {
 
                         {loggedInUser?.userName == user?.userName
                             ? <button style={{ height: '2em', width: '6em', marginRight: '1em', 
-                                        backgroundColor: 'green'}}>
+                                        backgroundColor: 'green'}} onClick={() => setShowEdit(true)}>
                                     Edit profile
                                 </button>
                             : <button style={{ height: '2.5em', width: '5.5em', marginRight: '1em', 
@@ -118,6 +121,10 @@ export const ProfilePage = () => {
                                 </button>
                         }
                     </div>
+
+                    {showEdit
+                    ? <EditProfile setShowEdit={setShowEdit} />
+                    : null}
                     
                     {loggedInUser?.followers?.some(u => u.userName === userName)
                     ? <div style={{ backgroundColor: "#2424", borderRadius: '0.5em', padding: '0.1em',

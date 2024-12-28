@@ -198,7 +198,7 @@ export const DetailedPostCard = () => {
                                 <div style={{ display: 'flex', flexDirection: 'row', 
                                                 alignItems: "center", gap: "4px", flex: "1 1 0%" }}>
                                     
-                                    <img src="" width={40} height={40} style={{ borderRadius: "50%" }} />
+                                    <img src={post.author.profilePicture} width={40} height={40} style={{ borderRadius: "50%" }} />
                                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                                         <span style={{ marginLeft: '1em', fontWeight: 'bold', cursor: 'pointer' }}
                                         onClick={() => navigate(`/profile/${post!.author.userName}`)}>
@@ -212,8 +212,7 @@ export const DetailedPostCard = () => {
                                 <div style={{ flex: "1 1 0%", width: "auto" }}>
                                     <div style={{ flex: "1 1 0%", width: "auto", marginRight: '1em' }}>
                                         <div style={{ marginTop: '1em', flex: "1 1 0%", width: "auto",
-                                            marginBottom: '1em'
-                                         }}>
+                                            marginBottom: '1em' }}>
                                             {getTextWithLinks()}
                                         </div>
                                         {post?.embed.externalLink
@@ -251,8 +250,8 @@ export const DetailedPostCard = () => {
                                             paddingBottom: '1em' }}>
                                             <div style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}
                                                 onClick={() => navigateToQuotedPost()}>
-                                                <img src="" width={20} height={20} style={{ borderRadius: '50%', 
-                                                    margin: '0.5em' }} />
+                                                <img src={post.quotedPost.author.profilePicture} width={30} height={30} style={{ borderRadius: '50%', 
+                                                   marginLeft: '0.5em' }} />
                                                 <span>{post?.quotedPost.author.displayName}</span>
                                                 <span> {" @"}{post?.quotedPost.author.userName}</span>
                                                 <span> {" "}{getTimeSinceString(post.quotedPost)}</span>
@@ -381,7 +380,7 @@ export const DetailedPostCard = () => {
                 <div style={{ borderBottom: '1px solid cyan', cursor: 'pointer' }}
                     onClick={() => setShowModal(true)}>
                     <div style={{ display: 'flex', flexDirection: 'row' }} onClick={() => setShowModal(true)}>
-                        <img src="" width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} />
+                        <img src={user?.profilePicture} width={40} height={40} style={{ borderRadius: '50%', margin: '0.5em' }} />
                         <button style={{ display: 'flex', justifyContent: 'flex-start', width: '100%',
                             color: '#6B7575',
                             backgroundColor: '#242424', border: 'none', resize: 'none',

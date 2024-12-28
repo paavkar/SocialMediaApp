@@ -113,7 +113,7 @@ namespace SocialMediaApp.Server.CosmosDb
                 else
                 {
                     followee.Followers.Add(follower);
-                    user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
+                    user.Following.Add(new Author() { Id = followee.Id, ProfilePicture = followee.ProfilePicture, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
                 }
             }
             else
@@ -142,7 +142,7 @@ namespace SocialMediaApp.Server.CosmosDb
 
             followee.Followers.Add(follower);
             followee.FollowRequests.RemoveAll(f => f.Id == follower.Id);
-            user.Following.Add(new Author() { Id = followee.Id, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
+            user.Following.Add(new Author() { Id = followee.Id, ProfilePicture = followee.ProfilePicture, UserName = followee.UserName, DisplayName = followee.DisplayName, Description = followee.Description });
 
             var updatedUser = await FollowPatchOperation(followee, user);
 
@@ -547,7 +547,7 @@ namespace SocialMediaApp.Server.CosmosDb
             {
                 post.LikeCount++;
                 user.LikedPosts.Add(post);
-                post.AccountsLiked.Add(new Author() { Id = user.Id, UserName = user.UserName, DisplayName = user.DisplayName, Description = user.Description });
+                post.AccountsLiked.Add(new Author() { Id = user.Id, ProfilePicture = user.ProfilePicture, UserName = user.UserName, DisplayName = user.DisplayName, Description = user.Description });
             }
             else
             {

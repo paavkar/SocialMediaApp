@@ -160,7 +160,7 @@ export const PostCard = ({ post }: PostProps) => {
             height: 'auto', borderBottom: "1px solid cyan", padding: "1em", paddingRight: "0em",
             flex: "1 1 0%" }}>
             <div>
-                <img src="" width={40} height={40} style={{ borderRadius: "50%" }} />
+                <img src={uPost.author.profilePicture} width={40} height={40} style={{ borderRadius: "50%" }} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", flex: "1 1 0%" }}>
                 <div>
@@ -222,7 +222,7 @@ export const PostCard = ({ post }: PostProps) => {
                             <div style={{ display: 'flex', flexDirection: 'column', paddingBottom: '1em', cursor: 'pointer' }}
                                 onClick={() => navigateToQuotedPost()}>
                                 <div style={{ display: 'flex', flexDirection: 'row', gap: '4px' }}>
-                                    <img src="" width={20} height={20} style={{ borderRadius: '50%', margin: '0.5em' }} />
+                                    <img src={post.quotedPost.author.profilePicture} width={30} height={30} style={{ borderRadius: '50%', marginLeft: '0.5em' }} />
                                     <span>{post?.quotedPost.author.displayName}</span>
                                     <span> {" @"}{post?.quotedPost.author.userName}</span>
                                     <span> {" "}{getTimeSinceString(post.quotedPost)}</span>

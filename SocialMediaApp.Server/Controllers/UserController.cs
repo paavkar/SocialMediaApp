@@ -7,7 +7,7 @@ namespace SocialMediaApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController(UserManager userManager) : ControllerBase
+    public class UserController(UserManager userManager, ImageService imageService) : ControllerBase
     {
         [HttpGet("{userName}")]
         public async Task<IActionResult> GetUser(string userName)
@@ -169,6 +169,45 @@ namespace SocialMediaApp.Server.Controllers
                 return NotFound(new { Message = "No user found with given ID." });
 
             return Ok(updatedUser);
+        }
+
+        [HttpPost("upload-profile-picture/{userId}")]
+        public async Task<IActionResult> UploadProfilePicture(string userId, [FromForm] IFormFile image)
+        {
+            string tokenUserId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(tokenUserId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+            if (userId != tokenUserId)
+                return Unauthorized(new { Message = "Token ID does not match user ID." });
+
+            if (image == null || image.Length == 0)
+            {
+                return BadRequest("Invalid image.");
+            }
+
+            string fileExtension = Path.GetExtension(image.FileName);
+
+            var fileName = $"profile-{userId}{fileExtension}";
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine("uploads", fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            string blobUri = await imageService.UploadImageAsync(image, fileName, userId);
+
+            System.IO.File.Delete(filePath);
+
+            return Ok(new { Url = blobUri });
         }
     }
 }

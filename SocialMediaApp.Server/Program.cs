@@ -29,6 +29,7 @@ builder.Services.AddScoped<RoleManager>();
 builder.Services.AddScoped<UserManager>();
 builder.Services.AddScoped<SignInManager>();
 builder.Services.AddScoped<PostsService>();
+builder.Services.AddScoped<ImageService>();
 builder.Services.AddHostedService<ChangeFeedService>();
 
 // Purpose of this is to create the database and containers if they don't exist yet
