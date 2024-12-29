@@ -168,7 +168,17 @@ namespace SocialMediaApp.Server.Controllers
             if (updatedUser is null)
                 return NotFound(new { Message = "No user found with given ID." });
 
-            return Ok(updatedUser);
+            var userDto = updatedUser.ToUserDTO();
+
+            updatedUser.LikedPosts.Reverse();
+
+            foreach (var likedPost in updatedUser.LikedPosts)
+            {
+                var author = await userManager.GetUserByIdAsync(likedPost.Author.Id);
+                userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
+            }
+
+            return Ok(userDto);
         }
 
         [HttpPost("upload-profile-picture/{userId}")]

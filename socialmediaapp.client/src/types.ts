@@ -15,8 +15,8 @@ export interface Author {
 
 export interface Embed {
     embedType: EmbedType;
-    images: Media[];
-    videos: Media[];
+    images?: Media[];
+    videos?: Media[];
     externalLink?: ExternalLink;
 }
 
@@ -43,7 +43,7 @@ export enum EmbedType {
 export interface Media {
     altText: string;
     aspectRatio: AspectRatio;
-    fileName: string;
+    filePath?: string;
 }
 
 export interface LoginDTO {

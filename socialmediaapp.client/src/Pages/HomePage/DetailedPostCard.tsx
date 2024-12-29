@@ -78,46 +78,31 @@ export const DetailedPostCard = () => {
         } 
 
         interval = seconds / 2592000; 
-        if (interval > 1) { 
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} months ago`
-            : timeString = `${Math.floor(interval)} month ago`
-            return timeString
-        } 
+        if (interval > 1) {
+            return `${Math.floor(interval)}m`
+        }  
 
         interval = seconds / 604800; 
         if (interval > 1) {
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} weeks ago`
-            : timeString = `${Math.floor(interval)} week ago`
-            return timeString
+            return `${Math.floor(interval)}w`
         } 
 
         interval = seconds / 86400; 
-        if (interval > 1) { 
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} days ago`
-            : timeString = `${Math.floor(interval)} day ago`
-            return timeString
-        } 
+        if (interval > 1) {
+            return `${Math.floor(interval)}d`
+        }  
 
         interval = seconds / 3600; 
         if (interval > 1) {
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} hours ago`
-            : timeString = `${Math.floor(interval)} hour ago`
-            return timeString
-        } 
+            return `${Math.floor(interval)}h`
+        }  
 
         interval = seconds / 60; 
-        if (interval > 1) { 
-            Math.floor(interval) > 1
-            ? timeString = `${Math.floor(interval)} minutes ago`
-            : timeString = `${Math.floor(interval)} minute ago`
-            return timeString
-        } 
+        if (interval > 1) {
+            return `${Math.floor(interval)}m`
+        }  
 
-        return `${Math.floor(seconds)} seconds ago`
+        return `${Math.floor(seconds)}s`
     }
 
     function navigateToQuotedPost() {

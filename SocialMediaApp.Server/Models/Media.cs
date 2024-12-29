@@ -10,7 +10,7 @@ namespace SocialMediaApp.Server.Models
         [JsonProperty(PropertyName = "aspectRatio")]
         public AspectRatio AspectRatio { get; set; }
 
-        [JsonProperty(PropertyName = "fileName")]
-        public string FileName { get; set; }
+        [JsonProperty(PropertyName = "filePath")]
+        public string? FilePath { get; set; }
     }
 }

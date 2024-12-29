@@ -8,7 +8,7 @@ namespace SocialMediaApp.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostController(UserManager userManager, PostsService postsService) : ControllerBase
+    public class PostController(UserManager userManager, PostsService postsService, ImageService imageService) : ControllerBase
     {
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -174,6 +174,56 @@ namespace SocialMediaApp.Server.Controllers
             var updatedPost = await postsService.UpdatePostTextAsync(postId, postUpdate.AuthorId, postUpdate.PostText);
 
             return Ok(updatedPost);
+        }
+
+        [HttpPost("upload-post-images/{postId}")]
+        public async Task<IActionResult> UploadProfilePicture(string postId,
+            [FromForm] List<IFormFile> images)
+        {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
+
+            if (String.IsNullOrEmpty(userId))
+                return Unauthorized(new { Message = "No valid token given with request." });
+
+            if (images == null || images.Count == 0)
+            {
+                return BadRequest("Invalid image.");
+            }
+
+            if (images.Count > 4)
+            {
+                return BadRequest("You can upload a maximum of 4 images.");
+            }
+
+            var post = await postsService.GetPostByIdAsync(postId, userId);
+
+            for (int i = 0; i < images.Count; i++)
+            {
+                string fileExtension = Path.GetExtension(images[i].FileName);
+
+                var fileName = $"image-{i + 1}-{postId}{fileExtension}";
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+                var filePath = Path.Combine(uploadsFolder, images[i].FileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await images[i].CopyToAsync(stream);
+                }
+
+                string blobUri = await imageService.UploadPostImageAsync(images[i], fileName, postId, userId);
+                System.IO.File.Delete(filePath);
+                post.Embed.Images[i].FilePath = blobUri;
+            }
+
+            Post updatedPost = await imageService.UpdatePostMediaAsync(post);
+
+            post = await postsService.GetPostDTOAsync(updatedPost);
+
+            return Ok(new { createdPost = post });
         }
     }
 }
