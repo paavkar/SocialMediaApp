@@ -201,7 +201,7 @@ namespace SocialMediaApp.Server.Controllers
             {
                 string fileExtension = Path.GetExtension(images[i].FileName);
 
-                var fileName = $"image-{i + 1}-{postId}{fileExtension}";
+                var fileName = $"image-{i + 1}-{postId}{fileExtension.ToLower()}";
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
                 if (!Directory.Exists(uploadsFolder))
                 {

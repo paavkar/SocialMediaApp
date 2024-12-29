@@ -198,7 +198,7 @@ namespace SocialMediaApp.Server.Controllers
 
             string fileExtension = Path.GetExtension(image.FileName);
 
-            var fileName = $"profile-{userId}{fileExtension}";
+            var fileName = $"profile-{userId}{fileExtension.ToLower()}";
 
             var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             if (!Directory.Exists(uploadsFolder))

@@ -25,6 +25,7 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [isImageCropped, setIsImageCropped] = useState(false);
     const cropperRef = useRef<ReactCropperElement>(null)
     const dispatch = useDispatch();
 
@@ -53,6 +54,7 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
         if (cropper) {
             const croppedDataUrl = cropper.getCroppedCanvas().toDataURL()
             setCroppedDataUrl(croppedDataUrl)
+            setIsImageCropped(true)
         }
     }
 
@@ -139,7 +141,7 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                     <img src={loggedInUser?.profilePicture} width={70} height={70} style={{ borderRadius: '50%' }} />
                     <input type="file" onChange={fileSelectedHandler} />
                     <div>
-                        {selectedFile && (
+                        {selectedFile && !isImageCropped && (
                             <div>
 
                                 <Cropper src={URL.createObjectURL(selectedFile)}
