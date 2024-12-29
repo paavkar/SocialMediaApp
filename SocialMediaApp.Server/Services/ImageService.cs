@@ -25,17 +25,15 @@ namespace SocialMediaApp.Server.Services
             var userResponse = await UserContainer.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
             var user = userResponse.Resource;
 
-            if (!user.ProfilePicture.Contains(userId))
-            {
-                await UserContainer.PatchItemAsync<UserAccount>(
-                    userId,
-                    new PartitionKey("User"),
-                    patchOperations: new[]
-                    {
-                        PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString()),
-                        PatchOperation.Replace("/changeFeed", true)
-                    });
-            }
+            await UserContainer.PatchItemAsync<UserAccount>(
+                userId,
+                new PartitionKey("User"),
+                patchOperations: new[]
+                {
+                    PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString()),
+                    PatchOperation.Replace("/changeFeed", true)
+                });
+
 
             return blobClient.Uri.ToString();
         }

@@ -215,9 +215,21 @@ namespace SocialMediaApp.Server.Controllers
 
             string blobUri = await imageService.UploadImageAsync(image, fileName, userId);
 
+            var user = await userManager.GetUserByIdAsync(userId);
+
+            var userDto = user.ToUserDTO();
+
+            user.LikedPosts.Reverse();
+
+            foreach (var likedPost in user.LikedPosts)
+            {
+                var author = await userManager.GetUserByIdAsync(likedPost.Author.Id);
+                userDto.LikedPosts.Add(likedPost.ToPostDTO(author));
+            }
+
             System.IO.File.Delete(filePath);
 
-            return Ok(new { Url = blobUri });
+            return Ok(new { Url = blobUri, user = userDto });
         }
     }
 }

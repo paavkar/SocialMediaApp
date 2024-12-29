@@ -24,7 +24,6 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
     const loggedInUser = useSelector<RootState, User | null>((state) => state.user);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
-    const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const cropperRef = useRef<ReactCropperElement>(null)
     const dispatch = useDispatch();
@@ -45,7 +44,6 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
         img.src = URL.createObjectURL(file)
         img.onload = () => {
             setSelectedFile(file)
-            setImageDimensions({ width: img.width, height: img.height })
             setErrorMessage(null)
         }
     }
@@ -90,6 +88,10 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
             if (response.ok) {
                 const result = await response.json()
                 dispatch(setUser({ user: { ...loggedInUser, profilePicture: result.url }}))
+
+                if (loggedInUser?.userName === displayedUser?.userName) {
+                    setDisplayedUser(result.user)
+                }
             }
         } 
         catch (error) 
@@ -118,9 +120,11 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
         if (response.ok) {
             const user = await response.json()
             dispatch(setUser({user: user}))
+
             if (user.userName === displayedUser?.userName) {
                 setDisplayedUser(user)
             }
+
             await uploadHandler()
         }
     }
@@ -136,13 +140,18 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                     <input type="file" onChange={fileSelectedHandler} />
                     <div>
                         {selectedFile && (
-                            <Cropper src={URL.createObjectURL(selectedFile)}
-                            style={{ maxWidth: 400 }}
-                            initialAspectRatio={1}
-                            guides={false}
-                            ref={cropperRef} />
+                            <div>
+
+                                <Cropper src={URL.createObjectURL(selectedFile)}
+                                    style={{ maxWidth: 400 }}
+                                    aspectRatio={1}
+                                    guides={false}
+                                    zoomable={false}
+                                    ref={cropperRef} />
+
+                                <button style={{ margin: '1em 0 1em 0', backgroundColor: 'green', height: '2em', width: '4em', fontSize: '1.3em' }} onClick={getCroppedImage}>Crop</button>
+                            </div>
                         )}
-                        <button onClick={getCroppedImage}>Crop</button>
                     </div>
                     <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -158,7 +167,8 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                                     </p>
                                 )}
 
-                                <input style={{ width: '20em', height: '2em', borderRadius: '0.5em' }}
+                                <input style={{ width: '20em', height: '2em', borderRadius: '0.5em',
+                                    backgroundColor: '#242424' }}
                                     {...register("displayName")}
                                     type="text" 
                                     id="displayName"
@@ -172,7 +182,8 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                                     Description
                                 </label>
 
-                                <textarea style={{ borderRadius: '0.5em', height: '12em', width: '30em', resize: 'none' }}
+                                <textarea style={{ borderRadius: '0.5em', height: '12em', width: '30em', resize: 'none',
+                                    backgroundColor: '#242424' }}
                                     {...register("description")}
                                     id="description"
                                     maxLength={440}
