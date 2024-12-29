@@ -22,14 +22,20 @@ namespace SocialMediaApp.Server.Services
 
             await blobClient.UploadAsync(file.OpenReadStream(), true);
 
-            await UserContainer.PatchItemAsync<UserAccount>(
-                userId,
-                new PartitionKey("User"),
-                patchOperations: new[]
-                {
-                    PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString()),
-                    PatchOperation.Replace("/changeFeed", true)
-                });
+            var userResponse = await UserContainer.ReadItemAsync<UserAccount>(userId, new PartitionKey("User"));
+            var user = userResponse.Resource;
+
+            if (!user.ProfilePicture.Contains(userId))
+            {
+                await UserContainer.PatchItemAsync<UserAccount>(
+                    userId,
+                    new PartitionKey("User"),
+                    patchOperations: new[]
+                    {
+                        PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString()),
+                        PatchOperation.Replace("/changeFeed", true)
+                    });
+            }
 
             return blobClient.Uri.ToString();
         }
@@ -42,20 +48,12 @@ namespace SocialMediaApp.Server.Services
 
             await blobClient.UploadAsync(file.OpenReadStream(), true);
 
-            await UserContainer.PatchItemAsync<Post>(
-                postId,
-                new PartitionKey($"Post-{userId}"),
-                patchOperations: new[]
-                {
-                    PatchOperation.Replace("/profilePicture", blobClient.Uri.ToString())
-                });
-
             return blobClient.Uri.ToString();
         }
 
         public async Task<Post> UpdatePostMediaAsync(PostDTO post)
         {
-            var response = await UserContainer.PatchItemAsync<Post>(
+            var response = await PostContainer.PatchItemAsync<Post>(
                 post.Id,
                 new PartitionKey(post.PartitionKey),
                 patchOperations: new[]

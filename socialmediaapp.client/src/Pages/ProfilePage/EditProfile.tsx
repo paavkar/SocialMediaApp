@@ -1,10 +1,12 @@
-import { ChangeEvent, useState } from "react"
+import { ChangeEvent, useState, useRef } from "react"
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, setUser } from "../../state";
-import { Author, User } from "../../types";
+import { User } from "../../types";
 import { z } from "zod";
 import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import 'cropperjs/dist/cropper.css'
+import Cropper, { ReactCropperElement } from 'react-cropper'
 
 type PostProps = {
     setShowEdit: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,6 +23,10 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
     const token = useSelector<RootState, string | null>((state) => state.token);
     const loggedInUser = useSelector<RootState, User | null>((state) => state.user);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [croppedDataUrl, setCroppedDataUrl] = useState<string | null>(null);
+    const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const cropperRef = useRef<ReactCropperElement>(null)
     const dispatch = useDispatch();
 
     const { register, handleSubmit, formState: { errors, isSubmitting }} = useForm<z.infer<typeof Schema>>({
@@ -31,10 +37,25 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                 }
         })
 
-    const fileSelectedHandler = (event: ChangeEvent<HTMLInputElement>) => { 
-        if (event.target.files && event.target.files.length > 0) { 
-            setSelectedFile(event.target.files[0]); 
-        };
+    const fileSelectedHandler = (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0]
+        if (!file) return
+
+        const img = new Image()
+        img.src = URL.createObjectURL(file)
+        img.onload = () => {
+            setSelectedFile(file)
+            setImageDimensions({ width: img.width, height: img.height })
+            setErrorMessage(null)
+        }
+    }
+
+    const getCroppedImage = () => {
+        const cropper = cropperRef.current?.cropper
+        if (cropper) {
+            const croppedDataUrl = cropper.getCroppedCanvas().toDataURL()
+            setCroppedDataUrl(croppedDataUrl)
+        }
     }
 
     const uploadHandler = async () => { 
@@ -42,8 +63,21 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
             return; 
         }
         
-        const formData = new FormData(); 
-        formData.append('image', selectedFile); 
+        const formData = new FormData();
+        if (croppedDataUrl) {
+            const byteString = atob(croppedDataUrl.split(',')[1])
+            const mimeString = croppedDataUrl.split(',')[0].split(':')[1].split(';')[0]
+            const ab = new ArrayBuffer(byteString.length)
+            const ia = new Uint8Array(ab)
+
+            for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i)
+            }
+            const blob = new Blob([ab], { type: mimeString })
+            formData.append('image', blob, selectedFile.name);
+        } else {
+            formData.append('image', selectedFile)
+        }
         try { 
             const response = await fetch(`/api/User/upload-profile-picture/${loggedInUser?.id}`, {
                 method: 'POST',
@@ -100,6 +134,16 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                 <div>
                     <img src={loggedInUser?.profilePicture} width={70} height={70} style={{ borderRadius: '50%' }} />
                     <input type="file" onChange={fileSelectedHandler} />
+                    <div>
+                        {selectedFile && (
+                            <Cropper src={URL.createObjectURL(selectedFile)}
+                            style={{ maxWidth: 400 }}
+                            initialAspectRatio={1}
+                            guides={false}
+                            ref={cropperRef} />
+                        )}
+                        <button onClick={getCroppedImage}>Crop</button>
+                    </div>
                     <div>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>

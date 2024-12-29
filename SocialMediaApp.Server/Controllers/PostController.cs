@@ -215,7 +215,9 @@ namespace SocialMediaApp.Server.Controllers
                 }
 
                 string blobUri = await imageService.UploadPostImageAsync(images[i], fileName, postId, userId);
+
                 System.IO.File.Delete(filePath);
+
                 post.Embed.Images[i].FilePath = blobUri;
             }
 

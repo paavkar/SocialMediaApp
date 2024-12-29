@@ -30,7 +30,7 @@ export const ReplyModal = ({ post, setShowModal, addToPostReplies }: PostProps) 
                 text: "",
                 author: {
                     id: user?.id,
-                    profilePicture: "",
+                    profilePicture: user?.profilePicture,
                     displayName: user?.displayName,
                     description: user?.description,
                     userName: user?.userName,

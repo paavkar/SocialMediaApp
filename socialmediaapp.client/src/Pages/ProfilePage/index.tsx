@@ -96,7 +96,7 @@ export const ProfilePage = () => {
         <Layout>
             <div style={{ marginTop: '10em' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '1em' }}>
-                    <img src={user?.profilePicture} width={80} height={80} style={{ borderRadius: '50%' }} />
+                    <img src={user?.profilePicture} width={150} height={150} style={{ borderRadius: '50%' }} />
                     <div style={{ display: 'flex', flexDirection: 'row', 
                         justifyContent: 'space-between'}}>
                         <span style={{ marginTop: '0.5em', 

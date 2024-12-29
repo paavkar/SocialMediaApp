@@ -5,7 +5,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Author, Post } from "../../types";
-import { useNavigate } from "react-router-dom";
 import { ChangeEvent, useState } from "react";
 
 const Schema = z.object({
@@ -29,7 +28,6 @@ interface SelectedFile {
 export const NewPost = ({ addToPosts }: NewPostProps) => {
     const user = useSelector<RootState, User | null>((state) => state.user);
     const token = useSelector<RootState, string | null>((state) => state.token);
-    const navigate = useNavigate();
     const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
     const [errorMessage, setErrorMessage] = useState<string | null>()
 
@@ -39,7 +37,7 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
                 text: "",
                 author: {
                     id: user?.id,
-                    profilePicture: "",
+                    profilePicture: user?.profilePicture,
                     displayName: user?.displayName,
                     description: user?.description,
                     userName: user?.userName,

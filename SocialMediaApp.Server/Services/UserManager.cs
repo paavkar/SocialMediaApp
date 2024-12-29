@@ -18,6 +18,7 @@ namespace SocialMediaApp.Server.Services
             var account = new UserAccount()
             {
                 DisplayName = registerDTO.DisplayName,
+                ProfilePicture = "",
                 UserName = registerDTO.UserName,
                 Email = registerDTO.Email,
                 PasswordHash = passwordHash
