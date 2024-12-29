@@ -47,7 +47,7 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
             setSelectedFile(file)
             setErrorMessage(null)
         }
-    }
+    }   
 
     const getCroppedImage = () => {
         const cropper = cropperRef.current?.cropper
@@ -96,7 +96,7 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                 }
             }
         } 
-        catch (error) 
+        catch (error)
         {
 
         }
@@ -138,12 +138,16 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
             <div style={{ backgroundColor: '#242424', margin: '15em auto', padding: '20px', border: '1px solid #888',
                 width: '30%', height: 'auto', borderRadius: '0.5em' }}>
                 <div>
-                    <img src={loggedInUser?.profilePicture} width={70} height={70} style={{ borderRadius: '50%' }} />
-                    <input type="file" onChange={fileSelectedHandler} />
+                    <button onClick={() => document.getElementById('upload-pfp')?.click()}
+                        style={{ backgroundColor: '#242424', borderRadius: '50%', padding: '0px', border: 'none',
+                        outline: 'none' }}>
+                        <img src={loggedInUser?.profilePicture} width={70} height={70} style={{ borderRadius: '50%' }} />
+                    </button>
+                    <input id="upload-pfp" style={{ visibility: 'hidden' }} type="file" accept=".jpg, .jpeg, .png"
+                        onChange={fileSelectedHandler} />
                     <div>
                         {selectedFile && !isImageCropped && (
                             <div>
-
                                 <Cropper src={URL.createObjectURL(selectedFile)}
                                     style={{ maxWidth: 400 }}
                                     aspectRatio={1}
@@ -151,7 +155,17 @@ export const EditProfile = ({ setShowEdit, displayedUser, setDisplayedUser }: Po
                                     zoomable={false}
                                     ref={cropperRef} />
 
-                                <button style={{ margin: '1em 0 1em 0', backgroundColor: 'green', height: '2em', width: '4em', fontSize: '1.3em' }} onClick={getCroppedImage}>Crop</button>
+                                <button style={{ margin: '1em 0 1em 0',
+                                    backgroundColor: 'green', height: '2em', width: '4em',
+                                    fontSize: '1.3em' }} onClick={getCroppedImage}>
+                                    Crop
+                                </button>
+                                <button style={{ margin: '1em 0 1em 0',
+                                    backgroundColor: 'red', height: '2em', width: '4em',
+                                    fontSize: '1.3em', marginLeft: '1em' }}
+                                    onClick={() => setSelectedFile(null)}>
+                                    Cancel
+                                </button>
                             </div>
                         )}
                     </div>

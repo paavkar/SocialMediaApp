@@ -39,7 +39,8 @@ Azurite needs to be running to see the images, and in the Microsoft Azure Storag
 
 And finally, the project requires following style of User Secrets:
 
-```{
+```
+{
   "AppSettings:Token": "<token for password hashing>",
   "CosmosDb:ConnectionString": "<your-azure-cosmos-db-emulator-connection-string>",
   "CosmosDb:DatabaseName": "SocialApp",
@@ -53,3 +54,4 @@ And finally, the project requires following style of User Secrets:
     "PostContainerName": "post-images"
   }
 }
+```
