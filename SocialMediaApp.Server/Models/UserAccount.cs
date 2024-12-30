@@ -74,6 +74,18 @@ namespace SocialMediaApp.Server.Models
             };
         }
 
+        public Author ToAuthor()
+        {
+            return new Author
+            {
+                Id = this.Id,
+                ProfilePicture = this.ProfilePicture,
+                DisplayName = this.DisplayName,
+                Description = this.Description,
+                UserName = this.UserName
+            };
+        }
+
         public AuthorDTO ToAuthorDTO()
         {
             return new AuthorDTO

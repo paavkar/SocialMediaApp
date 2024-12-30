@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SocialMediaApp.Server.Models;
+using SocialMediaApp.Server.Models.DTOs;
 using SocialMediaApp.Server.Services;
 using System.Security.Claims;
 
@@ -22,18 +23,28 @@ namespace SocialMediaApp.Server.Controllers
             if (user.AccountSettings.SignInRequired && String.IsNullOrEmpty(userId))
                 return Unauthorized(new { Message = "This user requires sign-in to view their profile." });
             if (userId != user.Id && user.AccountSettings.IsPrivate && !user.Followers.Any(f => f.Id == userId))
+            {
+                var followers = await userManager.GetUserFollowersAsync(user.Id);
+                var followings = await userManager.GetUserFollowingsAsync(user.Id);
+                List<Author> followerDtos = [.. followers.Select(f => f.ToAuthor())];
+                List<Author> followingDtos = [.. followings.Select(f => f.ToAuthor())];
+
                 return Unauthorized(new
                 {
                     Message = "This user's profile is private.",
-                    User = new Author()
+                    User = new AuthorDTO()
                     {
                         Id = user.Id,
                         ProfilePicture = user.ProfilePicture,
                         DisplayName = user.DisplayName,
                         Description = user.Description,
-                        UserName = user.UserName
+                        UserName = user.UserName,
+                        Followers = followerDtos,
+                        Following = followingDtos
                     }
                 });
+            }
+
 
             var userDto = user.ToUserDTO();
 

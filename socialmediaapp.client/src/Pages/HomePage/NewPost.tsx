@@ -52,6 +52,7 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
     async function onSubmit(values: z.infer<typeof Schema>) {
         let words = values.text.split(/\s+/)
         let urls: string[] = []
+        let images: Media[] = []
         
         for (let word of words) {
             try {
@@ -68,13 +69,10 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
 
         if (selectedFiles.length > 0) {
             values.embed.embedType = EmbedType.Images
-            let images: Media[] = []
 
             for (let file of selectedFiles) {
                 images.push({ altText: file.altText, aspectRatio: { width: file.width, height: file.height }})
             }
-
-            values.embed.images = images
         }
 
         if (urls.length > 0 && selectedFiles.length == 0)
@@ -112,12 +110,18 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
             const post = postResponse.createdPost
 
             if (selectedFiles.length === 0) {
+                reset()
+                addToPosts(post)
                 return;
             }
-            const formData = new FormData(); 
+
+            const formData = new FormData()
 
             selectedFiles.forEach((selectedFile) => { 
                 formData.append('images', selectedFile.file);
+                formData.append('altTexts', selectedFile.altText)
+                formData.append('heights', selectedFile.height.toString())
+                formData.append('widths', selectedFile.width.toString())
             });
     
             try {
@@ -127,11 +131,16 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
                     headers: {
                         "Authorization": `bearer ${token}`
                     }
-                });
+                })
 
-                const data = await imageResponse.json();
-                reset()
-                addToPosts(data.createdPost)
+                if (imageResponse.ok) {
+                    const data = await imageResponse.json();
+                    reset()
+                    setSelectedFiles([])
+                    addToPosts(data.createdPost)
+                }
+
+                
             } catch (error) {
                 console.error('There was an error!', error);
             }
@@ -139,29 +148,45 @@ export const NewPost = ({ addToPosts }: NewPostProps) => {
     }
 
     const fileSelectedHandler = (event: ChangeEvent<HTMLInputElement>) => { 
-        const files = event.target.files; 
-        if (files && files.length > 4) { 
-            setErrorMessage('You can upload a maximum of 4 files.'); 
-            return; 
-        } 
-        const fileArray = files 
-        ? Array.from(files) 
-        : [];
+        const files = event.target.files
+        if (files && (files.length > 4 || selectedFiles.length+files.length > 4 )) {
+            setErrorMessage('You can upload a maximum of 4 files.')
+            return
+        }
 
-        const selectedFileDetails: SelectedFile[] = [];
+        const fileArray = files
+        ? Array.from(files)
+        : []
 
-        fileArray.forEach((file) => { 
-            const img = new Image(); 
-            img.src = URL.createObjectURL(file); 
-            img.onload = () => { 
-                selectedFileDetails.push({ file: file, width: img.width, height: img.height, altText: file.name });
-                if (selectedFileDetails.length === fileArray.length) { 
-                    setSelectedFiles(selectedFileDetails); 
-                } 
-            }; 
-        }); 
-        setErrorMessage(null); 
-    };
+        let selectedFileDetails: SelectedFile[] = []
+
+        for (let existingFile of selectedFiles) {
+            selectedFileDetails.push(existingFile)
+        }
+
+        fileArray.forEach((file) => {
+            const img = new Image()
+            img.src = URL.createObjectURL(file)
+            img.onload = () => {
+                selectedFileDetails.push({ file: file, width: img.width, height: img.height, altText: "" })
+                setSelectedFiles(selectedFileDetails)
+            }
+        })
+        setErrorMessage(null)
+    }
+
+    function altTextChange(e: React.FormEvent<HTMLTextAreaElement>) {
+        const altText = e.currentTarget.value
+
+        for (let selectedFile of selectedFiles) {
+            var textInput = document.getElementById(selectedFile.file.name) as HTMLTextAreaElement
+            selectedFile.altText = textInput.value
+        }
+    }
+
+    function removeImage(selectedFile: SelectedFile) {
+        setSelectedFiles(selectedFiles.filter(f => f.file.name != selectedFile.file.name))
+    }
 
 return (
     <div style={{ borderBottom: '1px solid cyan', paddingBottom: '1em' }}>
@@ -174,13 +199,39 @@ return (
                     backgroundColor: '#242424', border: "none", outline: 'none',
                     borderBottom: '1px solid cyan'
                  }} />
-                <div>
-                    <input type="file" multiple onChange={fileSelectedHandler} />
+
+                 <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginLeft: '1em' }}>
+                    {selectedFiles.map((selectedFile) => {
+                        return (
+                            <div key={selectedFile.file.name}
+                                style={{ display: 'flex', flexDirection: 'column', gap: '4px', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
+                                    <img src={URL.createObjectURL(selectedFile.file)} style={{ maxWidth: 200 }}
+                                    title={selectedFile.file.name} />
+                                    <button type="button" style={{ backgroundColor: '#242424', height: '1.6em' }}
+                                        onClick={() => removeImage(selectedFile)}>
+                                        <i className="material-symbols-outlined">close</i>
+                                    </button>
+                                </div>
+                                    <textarea id={selectedFile.file.name} placeholder="Descriptive alt text"
+                                        onChange={altTextChange} style={{ height: '6em', backgroundColor: '#242424',
+                                        borderRadius: '0.5em', resize: 'none' }} />
+                            </div>
+                        )
+                    })}
+                 </div>
+                <div style={{ marginLeft: '0.5em', marginTop: '1em' }}>
+                    <button type="button" style={{ backgroundColor: '#242424', outline: 'none' }}
+                        onClick={() => document.getElementById('select-images')?.click()}>
+                        <i style={{  }} className="material-symbols-outlined">image</i>
+                    </button>
+                    <input type="file" id="select-images" style={{ visibility: 'hidden' }} multiple
+                    onChange={fileSelectedHandler} />
                     {errorMessage && <p style={{ color: 'red' }}>
                         {errorMessage}
                         </p>}
                 </div>
-            <button disabled={isSubmitting} type="submit"
+                <button disabled={isSubmitting} type="submit"
                     style={{ margin: '1em 0em 0.2em 0.5em', backgroundColor: 'green',
                         height: '2em', width: '4em'
                      }}>

@@ -177,8 +177,11 @@ namespace SocialMediaApp.Server.Controllers
         }
 
         [HttpPost("upload-post-images/{postId}")]
-        public async Task<IActionResult> UploadProfilePicture(string postId,
-            [FromForm] List<IFormFile> images)
+        public async Task<IActionResult> UploadPostImages(string postId,
+            [FromForm] List<IFormFile> images,
+            [FromForm] List<string> altTexts,
+            [FromForm] List<int> heights,
+            [FromForm] List<int> widths)
         {
             string userId = HttpContext.User.FindFirstValue(ClaimTypes.Sid)!;
 
@@ -196,9 +199,11 @@ namespace SocialMediaApp.Server.Controllers
             }
 
             var post = await postsService.GetPostByIdAsync(postId, userId);
+            post.Embed.Images = [];
 
             for (int i = 0; i < images.Count; i++)
             {
+                post.Embed.Images.Add(new Media());
                 string fileExtension = Path.GetExtension(images[i].FileName);
 
                 var fileName = $"image-{i + 1}-{postId}{fileExtension.ToLower()}";
@@ -218,6 +223,9 @@ namespace SocialMediaApp.Server.Controllers
 
                 System.IO.File.Delete(filePath);
 
+                post.Embed.Images[i].AltText = altTexts[i];
+                AspectRatio aspectRatio = new() { Height = heights[i], Width = widths[i] };
+                post.Embed.Images[i].AspectRatio = aspectRatio;
                 post.Embed.Images[i].FilePath = blobUri;
             }
 
