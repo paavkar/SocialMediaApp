@@ -200,7 +200,9 @@ return (
                     borderBottom: '1px solid cyan'
                  }} />
 
-                 <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginLeft: '1em' }}>
+                 <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginLeft: '1em', flexWrap: 'wrap',
+                    height: 'auto'
+                  }}>
                     {selectedFiles.map((selectedFile) => {
                         return (
                             <div key={selectedFile.file.name}

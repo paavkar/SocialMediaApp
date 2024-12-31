@@ -172,15 +172,8 @@ export const PostCard = ({ post }: PostProps) => {
                                     : uPost.text}
                                 </span>
                             </div>
-
-                            
                         </div>
                     </div>
-                    
-                    
-                    
-                    
-                    
                 </div>
             </div>
                 
@@ -199,25 +192,64 @@ export const PostCard = ({ post }: PostProps) => {
         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: '2.5em' }}>
             {uPost.embed.embedType === EmbedType.Images
             ?
+                uPost.embed.images?.length! < 3
+                ? 
                 <div style={{ display: 'flex', flexDirection: 'row', marginLeft: '1em', gap: '10px' }}>
                     {uPost.embed.images?.map((image) => {
                         return (
-                            <>
+                            <div key={image.filePath}>
                                 {uPost.embed.images?.length == 1
                                 ? 
                                     <img src={image.filePath} alt={image.altText} style={{ maxWidth: '30em' }} />
                                 : 
-                                    <div style={{ display: 'flex', flexDirection: 'row' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
                                         <img src={image.filePath} alt={image.altText} style={{ maxWidth: '15em' }} />
                                     </div>
                                 }
-                            </>
+                            </div>
                         )
                     })}
                 </div>
+                : uPost.embed.images?.length === 3
+                ? 
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '10px', marginLeft: '1em' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <img src={uPost.embed.images[0].filePath} alt={uPost.embed.images[0].altText} style={{ maxWidth: '15em' }} />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images[1].filePath} alt={uPost.embed.images[1].altText} style={{ maxHeight: '10em' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images[2].filePath} alt={uPost.embed.images[2].altText} style={{ maxHeight: '10em' }} />
+                        </div>
+                    </div>
+                </div>
+                :
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginLeft: '1em' }}>
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images?.[0].filePath} alt={uPost.embed.images?.[0].altText}
+                                style={{ maxWidth: '12em' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images?.[1].filePath} alt={uPost.embed.images?.[1].altText}
+                                style={{ maxWidth: '12em' }} />
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images?.[2].filePath} alt={uPost.embed.images?.[2].altText}
+                                style={{ maxWidth: '12em' }} />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <img src={uPost.embed.images?.[3].filePath} alt={uPost.embed.images?.[3].altText}
+                                style={{ maxWidth: '12em' }} />
+                        </div>
+                    </div>
+                </div>
             : null
             }
-
             {uPost.embed.externalLink
             ?
                 <div style={{ marginLeft: '1em', border: '1px solid #6B7575', borderRadius: '0.5em',
@@ -262,9 +294,10 @@ export const PostCard = ({ post }: PostProps) => {
                 </div>
             </div>
             : null}
-
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'row', marginLeft: '2.5em', gap: '5em' }}>
             <div style={{ display: 'flex', flexDirection: 'row', 
-                marginLeft: '1em', marginTop: '1em', justifyContent: "space-between" }}>
+                marginLeft: '1em', marginTop: '1em', justifyContent: "space-between", gap: '5em' }}>
                 <div style={{ flex: '1 1 0%', alignItems: 'flex-start', marginLeft: '-6px' }}>
                     <button style={{ display: 'flex', backgroundColor: '#242424', 
                         textAlign: 'center', flexDirection: 'row', justifyContent: 'center',
